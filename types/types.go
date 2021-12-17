@@ -11,81 +11,81 @@ type UInt64 uint64
 type Int int
 type UInt uint
 
-func (self Int8) Less(other Sortable) bool {
+func (s Int8) Less(other Sortable) bool {
 	if o, ok := other.(Int8); ok {
-		return self < o
+		return s < o
 	} else {
 		return false
 	}
 }
 
-func (self UInt8) Less(other Sortable) bool {
+func (s UInt8) Less(other Sortable) bool {
 	if o, ok := other.(UInt8); ok {
-		return self < o
+		return s < o
 	} else {
 		return false
 	}
 }
 
-func (self Int16) Less(other Sortable) bool {
+func (s Int16) Less(other Sortable) bool {
 	if o, ok := other.(Int16); ok {
-		return self < o
+		return s < o
 	} else {
 		return false
 	}
 }
 
-func (self UInt16) Less(other Sortable) bool {
+func (s UInt16) Less(other Sortable) bool {
 	if o, ok := other.(UInt16); ok {
-		return self < o
+		return s < o
 	} else {
 		return false
 	}
 }
 
-func (self Int32) Less(other Sortable) bool {
+func (s Int32) Less(other Sortable) bool {
 	if o, ok := other.(Int32); ok {
-		return self < o
+		return s < o
 	} else {
 		return false
 	}
 }
 
-func (self UInt32) Less(other Sortable) bool {
+func (s UInt32) Less(other Sortable) bool {
 	if o, ok := other.(UInt32); ok {
-		return self < o
+		return s < o
 	} else {
 		return false
 	}
 }
 
-func (self Int64) Less(other Sortable) bool {
+func (s Int64) Less(other Sortable) bool {
 	if o, ok := other.(Int64); ok {
-		return self < o
+		return s < o
 	} else {
 		return false
 	}
 }
 
-func (self UInt64) Less(other Sortable) bool {
+func (s UInt64) Less(other Sortable) bool {
 	if o, ok := other.(UInt64); ok {
-		return self < o
+		return s < o
 	} else {
 		return false
 	}
 }
 
-func (self Int) Less(other Sortable) bool {
+func (s Int) Less(other Sortable) bool {
 	if o, ok := other.(Int); ok {
-		return self < o
+		return s < o
 	} else {
 		return false
 	}
 }
 
-func (self UInt) Less(other Sortable) bool {
+func (s UInt) Less(other Sortable) bool {
 	if o, ok := other.(UInt); ok {
-		return self < o
+		return s < o
 	} else {
 		return false
 	}
