@@ -207,3 +207,28 @@ func TestReverse(t *testing.T) {
 	l2.PushBack(v4) // {3, 5, 4}
 	assert.Equal(t, l2.String(), "{3, 5, 4}", "l2.String() != {3, 5, 4}")
 }
+
+func TestList_Swap_Less(t *testing.T) {
+	v1, v2, v3, v4, v5 := types.Int(1), types.Int(2), types.Int(3), types.Int(4), types.Int(5)
+	l := New()
+	l.PushFront(v1)
+	l.PushFront(v2)
+	l.PushFront(v3)
+	l.PushFront(v4)
+	l.PushFront(v5) // {5, 4, 3, 2, 1}
+	assert.Equal(t, l.String(), "{5, 4, 3, 2, 1}", "l.String() != {5, 4, 3, 2, 1}")
+
+	l.Swap(1, 2) // {5, 3, 4, 2, 1}
+	assert.Equal(t, l.String(), "{5, 3, 4, 2, 1}", "l.String() != {5, 3, 4, 2, 1}")
+
+	l.Swap(0, 4) // {1, 3, 4, 2, 5}
+	assert.Equal(t, l.String(), "{1, 3, 4, 2, 5}", "l.String() != {1, 3, 4, 2, 5}")
+
+	l.Swap(2, 3) // {1, 3, 2, 4, 5}
+	assert.Equal(t, l.String(), "{1, 3, 2, 4, 5}", "l.String() != {1, 3, 2, 4, 5}")
+
+	// {1, 3, 2, 4, 5}
+	assert.Equal(t, l.Less(1, 2), false, "(3 < 2) != false")
+	assert.Equal(t, l.Less(1, 3), true, "(3 < 4) != true")
+	assert.Equal(t, l.Less(2, 3), true, "(2 < 4) != true")
+}

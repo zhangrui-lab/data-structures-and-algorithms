@@ -75,6 +75,28 @@ func (l *List) Init() *List {
 	return l
 }
 
+// Less 返回 List.At[i] 是否小于 List.At[j]：i 与 j需要介于 [ 0, l.Size() ) 之间
+func (l *List) Less(i, j int) bool {
+	return l.At(i).Data.Less(l.At(j).Data) // 可优化至一次 for
+}
+
+// Swap 交换 List.At[i] 与 List.At[j]：i 与 j需要介于 [ 0, l.Size() ) 之间
+func (l *List) Swap(i, j int) {
+	if i == j {
+		return
+	}
+	ie, je := l.At(i), l.At(j)
+	if i < j {
+		prev := ie.prev
+		l.move(ie, je)
+		l.move(je, prev)
+	} else {
+		prev := je.prev
+		l.move(je, ie)
+		l.move(ie, prev)
+	}
+}
+
 // Size 列表元素个数
 func (l *List) Size() int {
 	return l.size
