@@ -13,10 +13,7 @@ func New() *Stack {
 
 // Empty 当前栈是否为空
 func (s *Stack) Empty() bool {
-	if s.elem == nil || len(s.elem) == 0 {
-		return true
-	}
-	return false
+	return len(s.elem) <= 0
 }
 
 // Size 栈元素个数
@@ -26,9 +23,6 @@ func (s *Stack) Size() int {
 
 // Push 入栈
 func (s *Stack) Push(e interface{}) {
-	//if s.elem == nil {
-	//	s.elem = make([]interface{}, 0, 3)
-	//}
 	s.elem = append(s.elem, e)
 }
 
