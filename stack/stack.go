@@ -19,6 +19,11 @@ func (s *Stack) Empty() bool {
 	return false
 }
 
+// Size 栈元素个数
+func (s *Stack) Size() int {
+	return len(s.elem)
+}
+
 // Push 入栈
 func (s *Stack) Push(e interface{}) {
 	//if s.elem == nil {
