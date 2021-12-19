@@ -10,19 +10,19 @@ import (
 
 const lowCapacity = 3
 
-type vector struct {
+type Vector struct {
 	elem []types.Sortable
 }
 
 // New 直接实例化
-func New(cap int) *vector {
-	return &vector{
+func New(cap int) *Vector {
+	return &Vector{
 		elem: make([]types.Sortable, 0, cap),
 	}
 }
 
 // Copy 复制另一向量
-func Copy(o *vector) *vector {
+func Copy(o *Vector) *Vector {
 	vec := New(o.Capacity())
 	vec.elem = vec.elem[:o.Size()]
 	copy(vec.elem, o.elem)
@@ -30,7 +30,7 @@ func Copy(o *vector) *vector {
 }
 
 // CopySlice 复制切片以创建向量
-func CopySlice(o ...types.Sortable) *vector {
+func CopySlice(o ...types.Sortable) *Vector {
 	vec := New(cap(o))
 	vec.elem = vec.elem[:len(o)]
 	copy(vec.elem, o)
@@ -38,48 +38,48 @@ func CopySlice(o ...types.Sortable) *vector {
 }
 
 // Less 返回vec[i]与vec[j]的大小
-func (vec *vector) Less(i, j int) bool {
+func (vec *Vector) Less(i, j int) bool {
 	return vec.elem[i].Less(vec.elem[j])
 }
 
 // Swap 交换i，j 元素位置
-func (vec *vector) Swap(i, j int) {
+func (vec *Vector) Swap(i, j int) {
 	vec.elem[i], vec.elem[j] = vec.elem[j], vec.elem[i]
 }
 
 // Size 返回向量的大小
-func (vec *vector) Size() int {
+func (vec *Vector) Size() int {
 	return len(vec.elem)
 }
 
 // Empty 判定向量是否为空
-func (vec *vector) Empty() bool {
+func (vec *Vector) Empty() bool {
 	return vec.Size() <= 0
 }
 
 // Capacity 返回向量的容量
-func (vec *vector) Capacity() int {
+func (vec *Vector) Capacity() int {
 	return cap(vec.elem)
 }
 
 // Front 返回向量中第一个元素。
-func (vec *vector) Front() (types.Sortable, error) {
+func (vec *Vector) Front() (types.Sortable, error) {
 	if vec.Empty() {
-		return nil, fmt.Errorf("vector is empty")
+		return nil, fmt.Errorf("Vector is empty")
 	}
 	return vec.elem[0], nil
 }
 
 // Back 返回向量中最后一个元素。
-func (vec *vector) Back() (types.Sortable, error) {
+func (vec *Vector) Back() (types.Sortable, error) {
 	if vec.Empty() {
-		return nil, fmt.Errorf("vector is empty")
+		return nil, fmt.Errorf("Vector is empty")
 	}
 	return vec.elem[vec.Size()-1], nil
 }
 
 // At 返回向量中位置 n 处元素。
-func (vec *vector) At(r int) (types.Sortable, error) {
+func (vec *Vector) At(r int) (types.Sortable, error) {
 	if !vec.validRank(r) {
 		return nil, fmt.Errorf("access out of bounds. len = %v, idx = %v", vec.Size(), r)
 	}
@@ -87,7 +87,7 @@ func (vec *vector) At(r int) (types.Sortable, error) {
 }
 
 // Assign 为向量分配新内容，替换其当前内容。 当 n 非法时返回false。
-func (vec *vector) Assign(r int, v types.Sortable) bool {
+func (vec *Vector) Assign(r int, v types.Sortable) bool {
 	if !vec.validRank(r) {
 		return false
 	}
@@ -96,7 +96,7 @@ func (vec *vector) Assign(r int, v types.Sortable) bool {
 }
 
 // Disordered 返回向量的逆序对数
-func (vec *vector) Disordered() int {
+func (vec *Vector) Disordered() int {
 	var num = 0
 	for i := 1; i < vec.Size(); i++ {
 		if vec.elem[i].Less(vec.elem[i-1]) {
@@ -107,7 +107,7 @@ func (vec *vector) Disordered() int {
 }
 
 // String 字符串形式
-func (vec *vector) String() string {
+func (vec *Vector) String() string {
 	if vec.Empty() {
 		return "{}"
 	}
@@ -119,7 +119,7 @@ func (vec *vector) String() string {
 }
 
 // insert 在 [0,size] 的指定位置处进行插入。 当 n 非法时返回false。
-func (vec *vector) insert(r int, v types.Sortable) bool {
+func (vec *Vector) insert(r int, v types.Sortable) bool {
 	size := vec.Size()
 	if r != size && !vec.validRank(r) {
 		return false
@@ -134,7 +134,7 @@ func (vec *vector) insert(r int, v types.Sortable) bool {
 }
 
 // Remove 移除向量中秩为 r 的元素
-func (vec *vector) Remove(r int) (types.Sortable, error) {
+func (vec *Vector) Remove(r int) (types.Sortable, error) {
 	if !vec.validRank(r) {
 		return nil, fmt.Errorf("out of bounds. len = %v, idx = %v", vec.Size(), r)
 	}
@@ -144,7 +144,7 @@ func (vec *vector) Remove(r int) (types.Sortable, error) {
 }
 
 // RemoveRange 移除秩在区间 [lo,hi) 中的元素
-func (vec *vector) RemoveRange(lo, hi int) {
+func (vec *Vector) RemoveRange(lo, hi int) {
 	if lo >= hi || !vec.validRank(lo) {
 		return
 	}
@@ -153,46 +153,46 @@ func (vec *vector) RemoveRange(lo, hi int) {
 }
 
 // Clear 清空向量，不收缩所占空间
-func (vec *vector) Clear() {
+func (vec *Vector) Clear() {
 	vec.elem = vec.elem[:0]
 }
 
 // Push 尾部进行插入
-func (vec *vector) Push(v types.Sortable) {
+func (vec *Vector) Push(v types.Sortable) {
 	vec.insert(vec.Size(), v)
 }
 
 // Pop 尾部进行删除
-func (vec *vector) Pop() (types.Sortable, error) {
+func (vec *Vector) Pop() (types.Sortable, error) {
 	return vec.Remove(vec.Size() - 1)
 }
 
 // Scrambling 向量整体置乱
-func (vec *vector) Scrambling() {
+func (vec *Vector) Scrambling() {
 	vec.ScramblingRange(0, vec.Size())
 }
 
 // ScramblingRange 向量区间[lo, hi)置乱
-func (vec *vector) ScramblingRange(lo, hi int) {
+func (vec *Vector) ScramblingRange(lo, hi int) {
 	for ; lo < hi; hi-- {
 		vec.Swap(rand.Intn(hi), hi-1)
 	}
 }
 
 // Traverse 遍历向量元素
-func (vec *vector) Traverse(visit func(*types.Sortable)) {
+func (vec *Vector) Traverse(visit func(*types.Sortable)) {
 	for i := 0; i < vec.Size(); i++ {
 		visit(&vec.elem[i])
 	}
 }
 
 // Find 无序向量查找：多个元素时返回秩最大者，失败时返回-1
-func (vec *vector) Find(v types.Sortable) int {
+func (vec *Vector) Find(v types.Sortable) int {
 	return vec.FindRange(v, 0, vec.Size())
 }
 
 // FindRange 无序向量区间 [lo, hi) 查找：失败时返回-1
-func (vec *vector) FindRange(v types.Sortable, lo, hi int) int {
+func (vec *Vector) FindRange(v types.Sortable, lo, hi int) int {
 	for ; lo < hi && vec.elem[hi-1] != v; hi-- {
 	}
 	if lo == hi {
@@ -202,7 +202,7 @@ func (vec *vector) FindRange(v types.Sortable, lo, hi int) int {
 }
 
 // Deduplicate 无序向量去重
-func (vec *vector) Deduplicate() int {
+func (vec *Vector) Deduplicate() int {
 	oldSize := vec.Size()
 	set := make(map[types.Sortable]struct{})
 	for i := 0; i < vec.Size(); i++ {
@@ -216,17 +216,17 @@ func (vec *vector) Deduplicate() int {
 }
 
 // Search 有序向量整体查找, 返回不大于v的元素的最大秩
-func (vec *vector) Search(v types.Sortable) int {
+func (vec *Vector) Search(v types.Sortable) int {
 	return vec.SearchRange(v, 0, vec.Size())
 }
 
 // SearchRange 有序向量区间 [lo, hi) 查找, 返回不大于v的元素的最大秩
-func (vec *vector) SearchRange(v types.Sortable, lo, hi int) int {
+func (vec *Vector) SearchRange(v types.Sortable, lo, hi int) int {
 	return vec.binarySearchV2(v, lo, hi)
 }
 
 // Uniquify 有序向量去重
-func (vec *vector) Uniquify() int {
+func (vec *Vector) Uniquify() int {
 	var i, j = 0, 1
 	for ; j < vec.Size(); j++ {
 		if vec.elem[i] != vec.elem[j] {
@@ -240,7 +240,7 @@ func (vec *vector) Uniquify() int {
 }
 
 // 朴素二分查找
-func (vec *vector) binarySearchV1(v types.Sortable, lo, hi int) int {
+func (vec *Vector) binarySearchV1(v types.Sortable, lo, hi int) int {
 	for lo < hi {
 		mid := (lo + hi) >> 1
 		if v.Less(vec.elem[mid]) {
@@ -255,7 +255,7 @@ func (vec *vector) binarySearchV1(v types.Sortable, lo, hi int) int {
 }
 
 // 优化二分查找
-func (vec *vector) binarySearchV2(v types.Sortable, lo, hi int) int {
+func (vec *Vector) binarySearchV2(v types.Sortable, lo, hi int) int {
 	for lo < hi {
 		mid := (lo + hi) >> 1
 		if v.Less(vec.elem[mid]) {
@@ -268,7 +268,7 @@ func (vec *vector) binarySearchV2(v types.Sortable, lo, hi int) int {
 }
 
 // 扩容：空间不足时对容量执行翻倍
-func (vec *vector) expand() {
+func (vec *Vector) expand() {
 	if vec.Size() < vec.Capacity() {
 		return
 	}
@@ -284,7 +284,7 @@ func (vec *vector) expand() {
 }
 
 // 缩容：维持空间利用率在 50% 之上
-func (vec *vector) shrink() {
+func (vec *Vector) shrink() {
 	if vec.Size()<<2 > vec.Capacity() || vec.Capacity() < lowCapacity<<1 {
 		return
 	}
@@ -295,6 +295,6 @@ func (vec *vector) shrink() {
 }
 
 // 验证秩是否合法
-func (vec *vector) validRank(r int) bool {
+func (vec *Vector) validRank(r int) bool {
 	return 0 <= r && r < vec.Size()
 }
