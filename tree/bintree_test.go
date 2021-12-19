@@ -1,4 +1,4 @@
-package bintree
+package tree
 
 import (
 	"data-structures-and-algorithms/types"

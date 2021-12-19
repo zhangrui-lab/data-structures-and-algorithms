@@ -1,5 +1,5 @@
-// Package bintree 二叉树：仅提供树结构的基础操作支持，不包含指定元素值 v 的插入与查找等（查找树中实现）
-package bintree
+// Package tree 二叉树：仅提供树结构的基础操作支持，不包含指定元素值 v 的插入与查找等（查找树中实现）
+package tree
 
 import "data-structures-and-algorithms/types"
 

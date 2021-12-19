@@ -1,5 +1,5 @@
-// Package bintree 二叉树节点
-package bintree
+// Package tree 二叉树节点
+package tree
 
 import (
 	"data-structures-and-algorithms/queue"
