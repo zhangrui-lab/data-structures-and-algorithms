@@ -209,7 +209,9 @@ func (e *BinNode) rightRotate() *BinNode {
 		e.lc.parent = e
 	}
 	lc.rc = e
-	return nil
+	e.updateHeight()
+	lc.updateHeight()
+	return lc
 }
 
 // leftRotate 对空节点左旋（逆时针）：成功的左旋会令其合法右子节点接替当前节点位置，当前节点成为其右子节点的左子节点；
@@ -228,7 +230,9 @@ func (e *BinNode) leftRotate() *BinNode {
 		e.rc.parent = e
 	}
 	rc.lc = e
-	return interface{}(rc).(*BinNode)
+	e.updateHeight()
+	rc.updateHeight()
+	return rc
 }
 
 // 按照“3 + 4”结构联接3个节点及其四棵子树，返回重组之后的局部子树根节点位置（即b）.
