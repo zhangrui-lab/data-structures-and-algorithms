@@ -50,8 +50,8 @@ func NewHuffmanTree(input []byte) *HuffmanTree {
 
 // merge 合并huffman树,并返回合并后的新树
 func (t *HuffmanTree) merge(o *HuffmanTree) *HuffmanTree {
-	x := newHuffNode(innerhuffNode, t.root.Data.(huffNode).weight+o.root.Data.(huffNode).weight)
-	return &HuffmanTree{root: &BinNode{Data: x}}
+	x := newHuffNode(innerhuffNode, t.root.data.(huffNode).weight+o.root.data.(huffNode).weight)
+	return &HuffmanTree{root: &BinNode{data: x}}
 }
 
 func initForest() {

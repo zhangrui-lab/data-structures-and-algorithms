@@ -32,21 +32,21 @@ func (tree *BinTree) Root() *BinNode {
 // InsertAsRoot 插入根节点
 func (tree *BinTree) InsertAsRoot(v types.Sortable) *BinNode {
 	tree.size = 1
-	tree.root = &BinNode{Data: v}
+	tree.root = &BinNode{data: v}
 	return tree.root
 }
 
 // InsertAsLc e作为x的左孩子（原无）插入
 func (tree *BinTree) InsertAsLc(x *BinNode, v types.Sortable) *BinNode {
 	tree.size++
-	x.lc = &BinNode{Data: v, parent: x}
+	x.lc = &BinNode{data: v, parent: x}
 	return x.lc
 }
 
 // InsertAsRc e作为x的右孩子（原无）插入
 func (tree *BinTree) InsertAsRc(x *BinNode, v types.Sortable) *BinNode {
 	tree.size++
-	x.rc = &BinNode{Data: v, parent: x}
+	x.rc = &BinNode{data: v, parent: x}
 	return x.rc
 }
 
