@@ -217,6 +217,36 @@ func (e *BinNode) leftRotate() *BinNode {
 	return interface{}(rc).(*BinNode)
 }
 
+// 按照“3 + 4”结构联接3个节点及其四棵子树，返回重组之后的局部子树根节点位置（即b）.
+// 子树根节点与上层节点之间的双向联接，均须由上层调用者完成
+// 可用于AVL和RedBlack的局部平衡调整
+func connect34(a, b, c, t0, t1, t2, t3 *BinNode) *BinNode {
+	a.lc = t0
+	if a.lc != nil {
+		a.lc.parent = a
+	}
+	a.rc = t1
+	if a.rc != nil {
+		a.rc.parent = a
+	}
+
+	c.lc = t2
+	if c.lc != nil {
+		c.lc.parent = c
+	}
+	c.rc = t3
+	if c.rc != nil {
+		c.rc.parent = c
+	}
+
+	b.lc = a
+	a.parent = b
+	b.rc = c
+	c.parent = b
+	b.updateHeight()
+	return b
+}
+
 // travelLevel 对以当前节点为根的子树进行层序遍历
 func (e *BinNode) travelLevel(visit func(sortable *types.Sortable)) {
 	que := queue.New()

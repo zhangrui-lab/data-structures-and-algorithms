@@ -278,3 +278,39 @@ func TestHeight(t *testing.T) {
 	assert.Equal(t, e25.getHeight(), 4, "e25.getHeight() != 4")
 
 }
+
+func TestConnect34(t *testing.T) {
+	e25 := createTree()
+	e18 := e25.lc
+	e9 := e18.lc
+	_ = e18.rc
+	e5 := e9.lc
+	e := connect34(e5, e9, e18, e5.lc, e5.rc, e9.rc, e18.rc)
+	assert.Equal(t, e, e9, "e != e9")
+	assert.Equal(t, e9.lc, e5, "e9.lc != e5")
+	assert.Equal(t, e9.rc, e18, "e9.ec != e18")
+	assert.Equal(t, e5.parent, e9, "e5.parent != e9")
+	assert.Equal(t, e18.parent, e9, "e18.parent != e9")
+	assert.Equal(t, e18.lc, (*BinNode)(nil), "e18.lc != nil")
+
+	e25 = createTree()
+	e47 := e25.rc
+	e30 := e47.lc
+	e62 := e47.rc
+
+	e = connect34(e25, e47, e62, e25.lc, e47.lc, e62.lc, e62.rc)
+	assert.Equal(t, e, e47, "e != e47")
+	assert.Equal(t, e47.lc, e25, "e47.lc != e25")
+	assert.Equal(t, e47.rc, e62, "e47.rc != e62")
+	assert.Equal(t, e25.rc, e30, "e25.rc != e30")
+	assert.Equal(t, e30.parent, e25, "e30.parent != e25")
+
+	e25 = createTree()
+	e18 = e25.lc
+	e21 := e18.rc
+	e19 := e21.lc
+	e = connect34(e18, e19, e21, e18.lc, e19.lc, e19.rc, e21.rc)
+	assert.Equal(t, e, e19, "e != e19")
+	assert.Equal(t, e19.lc, e18, "e19.lc != e18")
+	assert.Equal(t, e19.rc, e21, "e19.rc != e21")
+}
