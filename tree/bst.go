@@ -29,37 +29,51 @@ func (t *Bst) Empty() bool {
 	return t.size <= 0
 }
 
+// Height 树高
+func (t *Bst) Height() int {
+	return t.root.getHeight()
+}
+
 // Clear 清空二叉查找树
-func (t *Bst) Clear() {
+func (t *Bst) Clear() int {
+	size := t.size
 	t.hot = nil
 	t.root = nil
 	t.size = 0
+	return size
 }
 
 // Search 二叉树元素查找
-func (t *Bst) Search(v types.Sortable) *BinNode {
-	return *t.searchAt(&t.root, v)
+func (t *Bst) Search(key types.Sortable) (interface{}, error) {
+	x := t.searchAt(&t.root, key)
+	if *x == nil {
+		return nil, fmt.Errorf("key %v not found", key)
+	}
+	return (*x).data.(Entry).value, nil
 }
 
 // Insert 二叉树元素插入
-func (t *Bst) Insert(v types.Sortable) *BinNode {
-	x := t.searchAt(&t.root, v)
-	if *x == nil {
-		t.size++
-		*x = &BinNode{data: v, parent: t.hot}
+func (t *Bst) Insert(key types.Sortable, value interface{}) error {
+	x := t.searchAt(&t.root, key)
+	if *x != nil {
+		return fmt.Errorf("key %v already exists", key)
 	}
-	return *x
+	t.size++
+	*x = newBstNode(key, value, t.hot, nil, nil)
+	t.hot.updateHeightAbove()
+	return nil
 }
 
 // Remove 二叉树元素删除
-func (t *Bst) Remove(v types.Sortable) bool {
-	x := t.searchAt(&t.root, v)
+func (t *Bst) Remove(key types.Sortable) error {
+	x := t.searchAt(&t.root, key)
 	if *x == nil {
-		return false
+		return fmt.Errorf("key %v not found", key)
 	}
 	t.size--
 	t.removeAt(x)
-	return true
+	t.hot.updateHeightAbove()
+	return nil
 }
 
 // searchAt 在以x为根节点的子树中查找元素v，设置hot指针, 并返回元素所在位置指针（指针的指针，便于上层直接赋值）
@@ -70,7 +84,7 @@ func (t *Bst) searchAt(x **BinNode, v types.Sortable) **BinNode {
 	}
 	for !equal(*x, v) {
 		t.hot = *x
-		if v.Less((*x).data) {
+		if v.Less((*x).data.(Entry).key) {
 			x = &(*x).lc
 		} else {
 			x = &(*x).rc
@@ -117,12 +131,12 @@ func (t *Bst) removeAt(x **BinNode) *BinNode {
 func (t *Bst) String() string {
 	items := make([]string, 0, t.Size())
 	t.root.travelIn(func(v *types.Sortable) {
-		items = append(items, fmt.Sprintf("%v", *v))
+		items = append(items, fmt.Sprintf("{%v,%v}", (*v).(Entry).key, (*v).(Entry).value))
 	})
 	return "{" + strings.Join(items, ", ") + "}"
 }
 
 // equal 节点判等：外部节点假想为通配符哨兵
 func equal(x *BinNode, v types.Sortable) bool {
-	return x == nil || x.data == v
+	return x == nil || x.data.(Entry).key == v
 }

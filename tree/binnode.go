@@ -32,8 +32,8 @@ func newBinNode(data types.Sortable) *BinNode {
 }
 
 // newBstNode 以<Key, Value> 形式新建二叉查找树节点
-func newBstNode(key types.Sortable, value interface{}) *BinNode {
-	return &BinNode{data: &entry{key: key, value: value}, height: 0, color: Red}
+func newBstNode(key types.Sortable, value interface{}, parent, lc, rc *BinNode) *BinNode {
+	return &BinNode{data: Entry{key: key, value: value}, parent: parent, lc: lc, rc: rc, height: 0, color: Red}
 }
 
 // isRoot 是否可为根节点。约定：e != nil
