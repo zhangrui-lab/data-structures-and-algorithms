@@ -142,6 +142,20 @@ func (e *BinNode) succ() *BinNode {
 	return e
 }
 
+// tallerChild 在左、右孩子中取更高者. 等高：与父亲x同侧者优先
+func (e *BinNode) tallerChild() *BinNode {
+	if e.lc.getHeight() > e.rc.getHeight() {
+		return e.lc
+	}
+	if e.lc.getHeight() < e.rc.getHeight() {
+		return e.rc
+	}
+	if e.isLc() {
+		return e.lc
+	}
+	return e.rc
+}
+
 // balanced 是否平衡：节点的左子树的高度与右子树的高度差不超过 1.
 func (e *BinNode) balanced() bool {
 	if e == nil {
@@ -229,6 +243,7 @@ func connect34(a, b, c, t0, t1, t2, t3 *BinNode) *BinNode {
 	if a.rc != nil {
 		a.rc.parent = a
 	}
+	a.updateHeight()
 
 	c.lc = t2
 	if c.lc != nil {
@@ -238,6 +253,7 @@ func connect34(a, b, c, t0, t1, t2, t3 *BinNode) *BinNode {
 	if c.rc != nil {
 		c.rc.parent = c
 	}
+	c.updateHeight()
 
 	b.lc = a
 	a.parent = b
