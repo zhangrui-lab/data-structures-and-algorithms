@@ -1,4 +1,4 @@
-// Package tree 二叉树节点
+// Package tree 通用二叉树节点
 package tree
 
 import (
@@ -7,10 +7,33 @@ import (
 	"data-structures-and-algorithms/types"
 )
 
+type RbColor int
+
+const (
+	_ RbColor = iota
+	Red
+	Black
+)
+
 // BinNode 二叉树节点
+// 当前节点为二叉树通用节点：会维护各种树结构的冗余信息
+// 约定节点深度为从根节点到当前节点所过边的长度。 节点高度为以其为根的子树的最大深度。
+// 约定：根节点高度为0， 外部节点（nil节点）高度为 -1
 type BinNode struct {
-	Data           types.Sortable
-	parent, lc, rc *BinNode
+	data           types.Sortable
+	parent, lc, rc *BinNode // 通用数据信息
+	height         int      // avl树中用以计算平衡因子；左式堆中用以保存 Null Path Length。
+	color          RbColor  // 红黑树颜色：默认以红节点给出
+}
+
+// newBinNode  新建普通二叉树节点
+func newBinNode(data types.Sortable) *BinNode {
+	return &BinNode{data: data, height: 0, color: Red}
+}
+
+// newBstNode 以<Key, Value> 形式新建二叉查找树节点
+func newBstNode(key types.Sortable, value interface{}) *BinNode {
+	return &BinNode{data: &entry{key: key, value: value}, height: 0, color: Red}
 }
 
 // isRoot 是否可为根节点。约定：e != nil
@@ -59,10 +82,18 @@ func (e *BinNode) uncle() *BinNode {
 	return e.parent.parent.lc
 }
 
+// fromParentTo 返回来自e父节点的指针信息。用以重设 e 父节点到当前节点的指针。约定：e != nil && e.parent != nil
+func (e *BinNode) fromParentTo() **BinNode {
+	if e.isLc() {
+		return &(e.parent.lc)
+	}
+	return &(e.parent.rc)
+}
+
 // insertAsLc 将 v 作为 e 的左子节点插入 （e左子节点不存在）
 func (e *BinNode) insertAsLc(v types.Sortable) *BinNode {
 	node := &BinNode{
-		Data:   v,
+		data:   v,
 		parent: e,
 	}
 	e.lc = node
@@ -72,7 +103,7 @@ func (e *BinNode) insertAsLc(v types.Sortable) *BinNode {
 // insertAsRc 将 v 作为 e 的右子节点插入 （e右子节点不存在）
 func (e *BinNode) insertAsRc(v types.Sortable) *BinNode {
 	node := &BinNode{
-		Data:   v,
+		data:   v,
 		parent: e,
 	}
 	e.rc = node
@@ -85,6 +116,14 @@ func (e *BinNode) size() int {
 		return 0
 	}
 	return 1 + e.lc.size() + e.rc.size()
+}
+
+// getHeight 获取当前节点高度
+func (e *BinNode) getHeight() int {
+	if e == nil {
+		return -1
+	}
+	return e.height
 }
 
 // succ 获取当前节点中序遍历下的直接后继：后继存在时返回该节点，不存在时（最右侧节点）返回nil
@@ -103,13 +142,88 @@ func (e *BinNode) succ() *BinNode {
 	return e
 }
 
+// balanced 是否平衡：节点的左子树的高度与右子树的高度差不超过 1.
+func (e *BinNode) balanced() bool {
+	if e == nil {
+		return true
+	}
+	diff := e.balanceFac()
+	return -2 < diff && diff < 2
+}
+
+// balanceFac 平衡因子
+func (e *BinNode) balanceFac() int {
+	return e.lc.getHeight() - e.rc.getHeight()
+}
+
+// updateHeight 对当前非空节点的高度进行更新
+func (e *BinNode) updateHeight() {
+	h := e.lc.getHeight()
+	rh := e.rc.getHeight()
+	if h < rh {
+		h = rh
+	}
+	e.height = h + 1
+}
+
+// updateHeightAbove 更新高度, 从x出发，覆盖历代祖先。
+func (e *BinNode) updateHeightAbove() {
+	for e != nil {
+		h := e.getHeight()
+		e.updateHeight()
+		if h == e.getHeight() {
+			break
+		}
+		e = e.parent
+	}
+}
+
+// rightRotate 对节点右旋（顺时针）：成功的右旋会令其合法左子节点接替当前节点位置，当前节点成为其左子节点的右子节点；
+func (e *BinNode) rightRotate() *BinNode {
+	if e == nil || e.lc == nil {
+		return nil
+	}
+	lc := e.lc
+	lc.parent = e.parent
+	if e.parent != nil {
+		*e.fromParentTo() = lc
+	}
+	e.parent = lc
+
+	e.lc = lc.rc
+	if e.lc != nil {
+		e.lc.parent = e
+	}
+	lc.rc = e
+	return nil
+}
+
+// leftRotate 对空节点左旋（逆时针）：成功的左旋会令其合法右子节点接替当前节点位置，当前节点成为其右子节点的左子节点；
+func (e *BinNode) leftRotate() *BinNode {
+	if e == nil || e.rc == nil {
+		return nil
+	}
+	rc := e.rc
+	rc.parent = e.parent
+	if e.parent != nil {
+		*e.fromParentTo() = rc
+	}
+	e.parent = rc
+	e.rc = rc.lc
+	if e.rc != nil {
+		e.rc.parent = e
+	}
+	rc.lc = e
+	return interface{}(rc).(*BinNode)
+}
+
 // travelLevel 对以当前节点为根的子树进行层序遍历
 func (e *BinNode) travelLevel(visit func(sortable *types.Sortable)) {
 	que := queue.New()
 	que.Push(e)
 	for !que.Empty() {
 		e, _ = que.Pop().(*BinNode)
-		visit(&e.Data)
+		visit(&e.data)
 		if e.lc != nil {
 			que.Push(e.lc)
 		}
@@ -129,7 +243,7 @@ func (e *BinNode) dfsPre(visit func(sortable *types.Sortable)) {
 	if e == nil {
 		return
 	}
-	visit(&e.Data)
+	visit(&e.data)
 	e.lc.dfsPre(visit)
 	e.rc.dfsPre(visit)
 }
@@ -139,7 +253,7 @@ func (e *BinNode) stackPre1(visit func(sortable *types.Sortable)) {
 	stk := stack.New()
 	goLeftAndVisit := func(x *BinNode) {
 		for ; x != nil; x = x.lc {
-			visit(&x.Data)
+			visit(&x.data)
 			if x.rc != nil {
 				stk.Push(x.rc)
 			}
@@ -160,7 +274,7 @@ func (e *BinNode) stackPre2(visit func(sortable *types.Sortable)) {
 	stk.Push(e)
 	for !stk.Empty() {
 		e = stk.Pop().(*BinNode)
-		visit(&e.Data)
+		visit(&e.data)
 		if e.rc != nil {
 			stk.Push(e.rc)
 		}
@@ -181,7 +295,7 @@ func (e *BinNode) dfsIn(visit func(sortable *types.Sortable)) {
 		return
 	}
 	e.lc.dfsIn(visit)
-	visit(&e.Data)
+	visit(&e.data)
 	e.rc.dfsIn(visit)
 }
 
@@ -200,7 +314,7 @@ func (e *BinNode) stackIn1(visit func(sortable *types.Sortable)) {
 			break
 		}
 		e = stk.Pop().(*BinNode)
-		visit(&e.Data)
+		visit(&e.data)
 		e = e.rc
 	}
 }
@@ -215,7 +329,7 @@ func (e *BinNode) stackIn2(visit func(sortable *types.Sortable)) {
 			e = e.lc
 		} else if !stk.Empty() {
 			e = stk.Pop().(*BinNode)
-			visit(&e.Data)
+			visit(&e.data)
 			e = e.rc
 		} else {
 			break
@@ -234,7 +348,7 @@ func (e *BinNode) backtrackIn(visit func(sortable *types.Sortable)) {
 		if !back && e.lc != nil {
 			e = e.lc
 		} else {
-			visit(&e.Data)
+			visit(&e.data)
 			if e.rc != nil {
 				e = e.rc
 				back = false
@@ -259,16 +373,16 @@ func (e *BinNode) iterationIn(visit func(sortable *types.Sortable)) {
 			e = e.lc
 			continue
 		}
-		visit(&e.Data)
+		visit(&e.data)
 		if e.rc != nil {
 			e = e.rc
 			continue
 		}
 		for e = e.succ(); e != nil && e.rc == nil; e = e.succ() {
-			visit(&e.Data)
+			visit(&e.data)
 		}
 		if e != nil {
-			visit(&e.Data)
+			visit(&e.data)
 			e = e.rc
 		}
 	}
@@ -286,7 +400,7 @@ func (e *BinNode) dfsPost(visit func(sortable *types.Sortable)) {
 	}
 	e.lc.dfsPost(visit)
 	e.rc.dfsPost(visit)
-	visit(&e.Data)
+	visit(&e.data)
 }
 
 // stackPost 栈迭代版后序
@@ -308,7 +422,7 @@ func (e *BinNode) stackPost(visit func(sortable *types.Sortable)) {
 	goLeft(e)
 	for !stk.Empty() {
 		e = stk.Pop().(*BinNode)
-		visit(&e.Data)
+		visit(&e.data)
 		if !stk.Empty() && e.parent != stk.Top().(*BinNode) {
 			goLeft(stk.Pop().(*BinNode))
 		}
@@ -329,7 +443,7 @@ func (e *BinNode) stackPost(visit func(sortable *types.Sortable)) {
 func (e *BinNode) morrisIn(visit func(sortable *types.Sortable)) {
 	for e != nil {
 		if e.lc == nil { // 无左子，访问当前节点并深入右子
-			visit(&e.Data)
+			visit(&e.data)
 			e = e.rc
 			continue
 		}
@@ -339,7 +453,7 @@ func (e *BinNode) morrisIn(visit func(sortable *types.Sortable)) {
 			e = e.lc
 			continue
 		}
-		visit(&e.Data) // 左子访问完成，可访问当前节点
+		visit(&e.data) // 左子访问完成，可访问当前节点
 		predecessor.rc = nil
 		e = e.rc
 	}
@@ -349,13 +463,13 @@ func (e *BinNode) morrisIn(visit func(sortable *types.Sortable)) {
 func (e *BinNode) morrisPre(visit func(sortable *types.Sortable)) {
 	for e != nil {
 		if e.lc == nil {
-			visit(&e.Data)
+			visit(&e.data)
 			e = e.rc
 			continue
 		}
 		predecessor := lTreePred(e)
 		if predecessor.rc == nil {
-			visit(&e.Data)
+			visit(&e.data)
 			predecessor.rc = e
 			e = e.lc
 			continue
@@ -369,9 +483,9 @@ func (e *BinNode) morrisPre(visit func(sortable *types.Sortable)) {
 func (e *BinNode) morrisPost(visit func(sortable *types.Sortable)) {
 	reverseVisit := func(p *BinNode, x *BinNode) {
 		for ; p != x; p = p.parent {
-			visit(&p.Data)
+			visit(&p.data)
 		}
-		visit(&p.Data)
+		visit(&p.data)
 	}
 	r := e
 	for {

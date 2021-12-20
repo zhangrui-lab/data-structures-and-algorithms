@@ -26,18 +26,19 @@ import (
 func createTree() *BinNode {
 	v5, v8, v9, v18, v19, v21, v25, v30, v40, v47, v51, v62 := types.Int(5), types.Int(8), types.Int(9), types.Int(18),
 		types.Int(19), types.Int(21), types.Int(25), types.Int(30), types.Int(40), types.Int(47), types.Int(51), types.Int(62)
-	e5 := &BinNode{Data: v5}
-	e8 := &BinNode{Data: v8}
-	e9 := &BinNode{Data: v9}
-	e18 := &BinNode{Data: v18}
-	e19 := &BinNode{Data: v19}
-	e21 := &BinNode{Data: v21}
-	e25 := &BinNode{Data: v25}
-	e30 := &BinNode{Data: v30}
-	e40 := &BinNode{Data: v40}
-	e47 := &BinNode{Data: v47}
-	e51 := &BinNode{Data: v51}
-	e62 := &BinNode{Data: v62}
+
+	e5 := newBinNode(v5)
+	e8 := newBinNode(v8)
+	e9 := newBinNode(v9)
+	e18 := newBinNode(v18)
+	e19 := newBinNode(v19)
+	e21 := newBinNode(v21)
+	e25 := newBinNode(v25)
+	e30 := newBinNode(v30)
+	e40 := newBinNode(v40)
+	e47 := newBinNode(v47)
+	e51 := newBinNode(v51)
+	e62 := newBinNode(v62)
 
 	e25.lc, e25.rc, e25.parent = e18, e47, nil
 	e18.lc, e18.rc, e18.parent = e9, e21, e25
@@ -99,7 +100,7 @@ func TestBasic(t *testing.T) {
 func TestInsert(t *testing.T) {
 	// 构建createTree中以18为根的子树
 	v5, v8, v9, v18, v19, v21 := types.Int(5), types.Int(8), types.Int(9), types.Int(18), types.Int(19), types.Int(21)
-	e18 := &BinNode{Data: v18}
+	e18 := newBinNode(v18)
 	assert.Equal(t, e18.isRoot(), true, "e18.isRoot != true")
 	assert.Equal(t, e18.size(), 1, "e18.size != 1")
 
@@ -196,4 +197,84 @@ func TestTravel(t *testing.T) {
 	root.morrisPost(visit)
 	assert.Equal(t, vec.String(), post, fmt.Sprintf("root.travelPost != %s", post))
 	vec.Clear()
+}
+
+func TestRotate(t *testing.T) {
+	e25 := createTree()
+	e18 := e25.lc
+	e9 := e18.lc
+	e21 := e18.rc
+	e47 := e25.rc
+	e30 := e47.lc
+	e62 := e47.rc
+
+	//					   47
+	//					 /    \
+	//			   	   25      62
+	//		  		 /    \    /
+	//		       18     30  51
+	//		      /  \     \
+	//		     9   21    40
+	//		    /   /
+	//		   5   19
+	//		    \
+	//           8
+	e := e25.leftRotate()
+	assert.Equal(t, e, e47, "e25.leftRotate() != e47")
+	assert.Equal(t, e.isRoot(), true, "e.isRoot() != true")
+	assert.Equal(t, e.lc, e25, "e.lc != e25")
+	assert.Equal(t, e.rc, e62, "e.rc != e25")
+
+	assert.Equal(t, e25.isLc(), true, "e25.isLc() != true")
+	assert.Equal(t, e25.parent, e, "e25.parent != e")
+	assert.Equal(t, e25.rc, e30, "e25.rc != e30")
+
+	assert.Equal(t, e30.parent, e25, "e30.parent != e25")
+
+	assert.Equal(t, e18.parent, e25, "e18.parent != e25")
+	assert.Equal(t, e18.lc, e9, "e18.lc != e9")
+	assert.Equal(t, e18.rc, e21, "e18.rc != e21")
+
+	//					  47
+	//					/    \
+	//			   	  18      62
+	//		  		/   \     /
+	//		       9    25    51
+	//		      /    /  \
+	//		     5    21  30
+	//		     \    /    \
+	//		      8  19    40
+	//
+	e = e25.rightRotate()
+	assert.Equal(t, e47.lc, e18, "e47.lc != e18")
+
+	assert.Equal(t, e18.parent, e47, "e18.parent != e47")
+	assert.Equal(t, e18.lc, e9, "e18.lc != e9")
+	assert.Equal(t, e18.rc, e25, "e18.rc != e25")
+
+	assert.Equal(t, e25.rc, e30, "e25.rc != e30")
+	assert.Equal(t, e25.lc, e21, "e25.lc != e21")
+
+	assert.Equal(t, e21.parent, e25, "e21.parent != e25")
+}
+
+func TestHeight(t *testing.T) {
+	e25 := createTree()
+	e18 := e25.lc
+	e9 := e18.lc
+	e5 := e9.lc
+	assert.NotEqual(t, e5, nil, "e5 != nil")
+
+	e5.updateHeight()
+	assert.Equal(t, e9.getHeight(), 0, "e9.getHeight() != 0")
+	assert.Equal(t, e5.getHeight(), 1, "e5.getHeight() != 1")
+	assert.Equal(t, e5.lc.getHeight(), -1, "e5.lc.getHeight() != -1")
+
+	e5.height = 0
+	e5.updateHeightAbove()
+	assert.Equal(t, e5.getHeight(), 1, "e5.getHeight() != 1")
+	assert.Equal(t, e9.getHeight(), 2, "e9.getHeight() != 2")
+	assert.Equal(t, e18.getHeight(), 3, "e18.getHeight() != 3")
+	assert.Equal(t, e25.getHeight(), 4, "e25.getHeight() != 4")
+
 }
