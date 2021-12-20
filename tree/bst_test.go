@@ -15,7 +15,7 @@ func TestBst(t *testing.T) {
 	// ----------------- insert -------------------------
 	// v2
 	e2 := bst.Insert(v2)
-	assert.Equal(t, e2.Data, v2, "e2.Data != v2")
+	assert.Equal(t, e2.data, v2, "e2.data != v2")
 	assert.Equal(t, e2.isRoot(), true, "e2.isRoot() != true")
 
 	e := bst.Search(v2)
@@ -99,4 +99,11 @@ func TestBst(t *testing.T) {
 	bst.Remove(v5)
 	bst.Remove(v1)
 	assert.Equal(t, bst.String(), "{3, 4}", "bst.String() != {3, 4}")
+
+	bst.Clear()
+	assert.Equal(t, bst.Size(), 0, "bst.Clear.Size() != 0")
+	assert.Equal(t, bst.Empty(), true, "bst.Clear.Empty() != true")
+	assert.Equal(t, bst.root, (*BinNode)(nil), "bst.Clear.root != nil")
+	assert.Equal(t, bst.hot, (*BinNode)(nil), "bst.Clear.hot != nil")
+
 }

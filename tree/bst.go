@@ -1,4 +1,4 @@
-// Package tree 二叉搜索树：在二叉树的基础上新增节点局部约束即可实现，任意节点x，x.lc.Data <= x.Data <= x.rc.Data
+// Package tree 二叉搜索树：在二叉树的基础上新增节点局部约束即可实现，任意节点x，x.lc.data <= x.data <= x.rc.data
 package tree
 
 import (
@@ -29,6 +29,13 @@ func (t *Bst) Empty() bool {
 	return t.size <= 0
 }
 
+// Clear 清空二叉查找树
+func (t *Bst) Clear() {
+	t.hot = nil
+	t.root = nil
+	t.size = 0
+}
+
 // Search 二叉树元素查找
 func (t *Bst) Search(v types.Sortable) *BinNode {
 	return *t.searchAt(&t.root, v)
@@ -39,7 +46,7 @@ func (t *Bst) Insert(v types.Sortable) *BinNode {
 	x := t.searchAt(&t.root, v)
 	if *x == nil {
 		t.size++
-		*x = &BinNode{Data: v, parent: t.hot}
+		*x = &BinNode{data: v, parent: t.hot}
 	}
 	return *x
 }
@@ -63,7 +70,7 @@ func (t *Bst) searchAt(x **BinNode, v types.Sortable) **BinNode {
 	}
 	for !equal(*x, v) {
 		t.hot = *x
-		if v.Less((*x).Data) {
+		if v.Less((*x).data) {
 			x = &(*x).lc
 		} else {
 			x = &(*x).rc
@@ -90,7 +97,7 @@ func (t *Bst) removeAt(x **BinNode) *BinNode {
 		succ = *x
 	} else {
 		w = (*x).succ()
-		w.Data, (*x).Data = (*x).Data, w.Data // todo 此处未作节点交换，只实现对数据项的交换 (外层节点引用的数据信息会出现异常)
+		w.data, (*x).data = (*x).data, w.data // todo 此处未作节点交换，只实现对数据项的交换 (外层节点引用的数据信息会出现异常)
 		p := w.parent
 		if p == (*x) {
 			p.rc = w.rc
@@ -117,5 +124,5 @@ func (t *Bst) String() string {
 
 // equal 节点判等：外部节点假想为通配符哨兵
 func equal(x *BinNode, v types.Sortable) bool {
-	return x == nil || x.Data == v
+	return x == nil || x.data == v
 }
