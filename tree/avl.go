@@ -12,11 +12,7 @@ type Avl struct {
 
 // NewAvl 新建空avl树
 func NewAvl(cmps ...contract.Comparator) *Avl {
-	cmp := contract.DefaultComparator
-	if len(cmps) > 0 {
-		cmp = cmps[0]
-	}
-	return &Avl{Bst: *NewBst(cmp)}
+	return &Avl{Bst: *NewBst(cmps...)}
 }
 
 // Insert Avl树插入
