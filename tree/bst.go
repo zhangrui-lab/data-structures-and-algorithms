@@ -2,21 +2,30 @@
 package tree
 
 import (
-	"data-structures-and-algorithms/types"
+	"data-structures-and-algorithms/contract"
 	"fmt"
 	"strings"
 )
 
+var (
+	keyComparator = contract.DefaultComparator
+)
+
 // Bst 二叉查找树：不维护树的渐进平衡性
 type Bst struct {
-	hot  *BinNode // “命中”节点的父亲
-	root *BinNode // 根节点
-	size int
+	hot           *BinNode            // “命中”节点的父亲
+	root          *BinNode            // 根节点
+	keyComparator contract.Comparator // 比较器
+	size          int
 }
 
 // NewBst 创建二叉搜索树
-func NewBst() *Bst {
-	return &Bst{}
+func NewBst(cmps ...contract.Comparator) *Bst {
+	cmp := keyComparator
+	if len(cmps) > 0 {
+		cmp = cmps[0]
+	}
+	return &Bst{keyComparator: cmp}
 }
 
 // Size 树规模
@@ -44,47 +53,45 @@ func (t *Bst) Clear() int {
 }
 
 // Search 二叉树元素查找
-func (t *Bst) Search(key types.Sortable) (interface{}, error) {
+func (t *Bst) Search(key interface{}) interface{} {
 	x := t.searchAt(&t.root, key)
 	if *x == nil {
-		return nil, fmt.Errorf("key %v not found", key)
+		return nil
 	}
-	return (*x).data.(Entry).value, nil
+	return (*x).value
 }
 
 // Insert 二叉树元素插入
-func (t *Bst) Insert(key types.Sortable, value interface{}) error {
+func (t *Bst) Insert(key interface{}, value interface{}) {
 	x := t.searchAt(&t.root, key)
 	if *x != nil {
-		return fmt.Errorf("key %v already exists", key)
+		return
 	}
 	t.size++
-	*x = newBstNode(key, value, t.hot, nil, nil)
+	*x = newBinNode(key, value, t.hot, nil, nil)
 	t.hot.updateHeightAbove()
-	return nil
 }
 
 // Remove 二叉树元素删除
-func (t *Bst) Remove(key types.Sortable) error {
+func (t *Bst) Remove(key interface{}) {
 	x := t.searchAt(&t.root, key)
 	if *x == nil {
-		return fmt.Errorf("key %v not found", key)
+		return
 	}
 	t.size--
 	t.removeAt(x)
 	t.hot.updateHeightAbove()
-	return nil
 }
 
 // searchAt 在以x为根节点的子树中查找元素v，设置hot指针, 并返回元素所在位置指针（指针的指针，便于上层直接赋值）
-func (t *Bst) searchAt(x **BinNode, v types.Sortable) **BinNode {
+func (t *Bst) searchAt(x **BinNode, key interface{}) **BinNode {
 	t.hot = nil
 	if *x != nil {
 		t.hot = (*x).parent
 	}
-	for !equal(*x, v) {
+	for !equal(*x, key) {
 		t.hot = *x
-		if v.Less((*x).data.(Entry).key) {
+		if keyComparator(key, (*x).key) < 0 {
 			x = &(*x).lc
 		} else {
 			x = &(*x).rc
@@ -110,8 +117,9 @@ func (t *Bst) removeAt(x **BinNode) *BinNode {
 		*x = (*x).lc
 		succ = *x
 	} else {
-		w = (*x).succ()
-		w.data, (*x).data = (*x).data, w.data // todo 此处未作节点交换，只实现对数据项的交换 (外层节点引用的数据信息会出现异常)
+		w = (*x).successor()
+		// todo 此处未作节点交换，只实现对数据项的交换 (外层节点引用的数据信息会出现异常)
+		(*x).key, (*x).value = w.key, w.value
 		p := w.parent
 		if p == (*x) {
 			p.rc = w.rc
@@ -130,13 +138,13 @@ func (t *Bst) removeAt(x **BinNode) *BinNode {
 // String 中序遍历下输出树元素
 func (t *Bst) String() string {
 	items := make([]string, 0, t.Size())
-	t.root.travelIn(func(v *types.Sortable) {
-		items = append(items, fmt.Sprintf("{%v,%v}", (*v).(Entry).key, (*v).(Entry).value))
+	t.root.travelIn(func(key, value interface{}) {
+		items = append(items, fmt.Sprintf("{%v,%v}", key, value))
 	})
 	return "{" + strings.Join(items, ", ") + "}"
 }
 
 // equal 节点判等：外部节点假想为通配符哨兵
-func equal(x *BinNode, v types.Sortable) bool {
-	return x == nil || x.data.(Entry).key == v
+func equal(x *BinNode, key interface{}) bool {
+	return x == nil || x.key == key
 }
