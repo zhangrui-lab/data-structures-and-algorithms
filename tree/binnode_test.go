@@ -1,7 +1,6 @@
 package tree
 
 import (
-	"data-structures-and-algorithms/types"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -23,8 +22,7 @@ import (
 // 该二叉树的中序遍历为： 5 8 9 18 19 21 25 30 40 47 51 62
 // 该二叉树的后序遍历为： 8 5 9 19 21 18 40 30 51 62 47 25
 func createTree() *BinNode {
-	v5, v8, v9, v18, v19, v21, v25, v30, v40, v47, v51, v62 := types.Int(5), types.Int(8), types.Int(9), types.Int(18),
-		types.Int(19), types.Int(21), types.Int(25), types.Int(30), types.Int(40), types.Int(47), types.Int(51), types.Int(62)
+	v5, v8, v9, v18, v19, v21, v25, v30, v40, v47, v51, v62 := 5, 8, 9, 18, 19, 21, 25, 30, 40, 47, 51, 62
 
 	e5 := newBinNode(v5, v5, nil, nil, nil)
 	e8 := newBinNode(v8, v8, nil, nil, nil)
@@ -102,7 +100,7 @@ func TestBasic(t *testing.T) {
 
 func TestInsert(t *testing.T) {
 	// 构建createTree中以18为根的子树
-	v5, v8, v9, v18, v19, v21 := types.Int(5), types.Int(8), types.Int(9), types.Int(18), types.Int(19), types.Int(21)
+	v5, v8, v9, v18, v19, v21 := 5, 8, 9, 18, 19, 21
 	e18 := newBinNode(v18, v18, nil, nil, nil)
 	assert.Equal(t, e18.isRoot(), true, "e18.isRoot != true")
 	assert.Equal(t, e18.size(), 1, "e18.size != 1")
