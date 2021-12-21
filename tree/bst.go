@@ -89,7 +89,7 @@ func (t *Bst) searchAt(x **BinNode, key interface{}) **BinNode {
 	if *x != nil {
 		t.hot = (*x).parent
 	}
-	for !(*x == nil || (*x).key == key) {
+	for !(*x == nil || keyComparator((*x).key, key) == 0) {
 		t.hot = *x
 		if keyComparator(key, (*x).key) < 0 {
 			x = &(*x).lc
