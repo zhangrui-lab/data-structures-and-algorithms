@@ -2,7 +2,7 @@
 package vector
 
 import (
-	"data-structures-and-algorithms/types"
+	"data-structures-and-algorithms/contract"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -11,13 +11,13 @@ import (
 const lowCapacity = 3
 
 type Vector struct {
-	elem []types.Sortable
+	elem []interface{}
 }
 
 // New 直接实例化
 func New(cap int) *Vector {
 	return &Vector{
-		elem: make([]types.Sortable, 0, cap),
+		elem: make([]interface{}, 0, cap),
 	}
 }
 
@@ -29,22 +29,12 @@ func Copy(o *Vector) *Vector {
 	return vec
 }
 
-// CopySlice 复制切片以创建向量
-func CopySlice(o ...types.Sortable) *Vector {
+// FromSlice 复制切片以创建向量
+func FromSlice(o ...interface{}) *Vector {
 	vec := New(cap(o))
 	vec.elem = vec.elem[:len(o)]
 	copy(vec.elem, o)
 	return vec
-}
-
-// Less 返回vec[i]与vec[j]的大小
-func (vec *Vector) Less(i, j int) bool {
-	return vec.elem[i].Less(vec.elem[j])
-}
-
-// Swap 交换i，j 元素位置
-func (vec *Vector) Swap(i, j int) {
-	vec.elem[i], vec.elem[j] = vec.elem[j], vec.elem[i]
 }
 
 // Size 返回向量的大小
@@ -63,47 +53,55 @@ func (vec *Vector) Capacity() int {
 }
 
 // Front 返回向量中第一个元素。
-func (vec *Vector) Front() (types.Sortable, error) {
+func (vec *Vector) Front() interface{} {
 	if vec.Empty() {
-		return nil, fmt.Errorf("Vector is empty")
+		return nil
 	}
-	return vec.elem[0], nil
+	return vec.elem[0]
 }
 
 // Back 返回向量中最后一个元素。
-func (vec *Vector) Back() (types.Sortable, error) {
+func (vec *Vector) Back() interface{} {
 	if vec.Empty() {
-		return nil, fmt.Errorf("Vector is empty")
+		return nil
 	}
-	return vec.elem[vec.Size()-1], nil
+	return vec.elem[vec.Size()-1]
 }
 
-// At 返回向量中位置 n 处元素。
-func (vec *Vector) At(r int) (types.Sortable, error) {
-	if !vec.validRank(r) {
-		return nil, fmt.Errorf("access out of bounds. len = %v, idx = %v", vec.Size(), r)
-	}
-	return vec.elem[r], nil
+// First 首元素迭代器
+func (vec *Vector) First() *VectorIterator {
+	return vec.Begin()
 }
 
-// Assign 为向量分配新内容，替换其当前内容。 当 n 非法时返回false。
-func (vec *Vector) Assign(r int, v types.Sortable) bool {
+// Last 末元素迭代器
+func (vec *Vector) Last() *VectorIterator {
+	return &VectorIterator{vec, vec.Size() - 1}
+}
+
+// Begin 首元素迭代器
+func (vec *Vector) Begin() *VectorIterator {
+	return &VectorIterator{vec, 0}
+}
+
+// End 尾后元素迭代器·
+func (vec *Vector) End() *VectorIterator {
+	return &VectorIterator{vector: vec, rank: vec.Size()}
+}
+
+// At 返回向量中位置 i 处元素。
+func (vec *Vector) At(i int) interface{} {
+	if !vec.validRank(i) {
+		return nil
+	}
+	return vec.elem[i]
+}
+
+// Assign 为向量指定合法位置 r 分配新内容，替换其当前内容。
+func (vec *Vector) Assign(r int, v interface{}) {
 	if !vec.validRank(r) {
-		return false
+		return
 	}
 	vec.elem[r] = v
-	return true
-}
-
-// Disordered 返回向量的逆序对数
-func (vec *Vector) Disordered() int {
-	var num = 0
-	for i := 1; i < vec.Size(); i++ {
-		if vec.elem[i].Less(vec.elem[i-1]) {
-			num++
-		}
-	}
-	return num
 }
 
 // String 字符串形式
@@ -119,7 +117,7 @@ func (vec *Vector) String() string {
 }
 
 // insert 在 [0,size] 的指定位置处进行插入。 当 n 非法时返回false。
-func (vec *Vector) insert(r int, v types.Sortable) bool {
+func (vec *Vector) insert(r int, v interface{}) bool {
 	size := vec.Size()
 	if r != size && !vec.validRank(r) {
 		return false
@@ -134,13 +132,13 @@ func (vec *Vector) insert(r int, v types.Sortable) bool {
 }
 
 // Remove 移除向量中秩为 r 的元素
-func (vec *Vector) Remove(r int) (types.Sortable, error) {
+func (vec *Vector) Remove(r int) interface{} {
 	if !vec.validRank(r) {
-		return nil, fmt.Errorf("out of bounds. len = %v, idx = %v", vec.Size(), r)
+		return nil
 	}
 	e := vec.elem[r]
 	vec.RemoveRange(r, r+1)
-	return e, nil
+	return e
 }
 
 // RemoveRange 移除秩在区间 [lo,hi) 中的元素
@@ -157,14 +155,24 @@ func (vec *Vector) Clear() {
 	vec.elem = vec.elem[:0]
 }
 
-// Push 尾部进行插入
-func (vec *Vector) Push(v types.Sortable) {
-	vec.insert(vec.Size(), v)
+// PushBack 尾部进行插入
+func (vec *Vector) PushBack(value interface{}) {
+	vec.insert(vec.Size(), value)
 }
 
-// Pop 尾部进行删除
-func (vec *Vector) Pop() (types.Sortable, error) {
+// PopBack 尾部进行删除
+func (vec *Vector) PopBack() interface{} {
 	return vec.Remove(vec.Size() - 1)
+}
+
+// PushFront 首部进行插入：O(n) 时间复杂度
+func (vec *Vector) PushFront(value interface{}) {
+	vec.insert(0, value)
+}
+
+// PopFront 首部进行删除：O(n) 时间复杂度
+func (vec *Vector) PopFront() interface{} {
+	return vec.Remove(0)
 }
 
 // Scrambling 向量整体置乱
@@ -175,54 +183,30 @@ func (vec *Vector) Scrambling() {
 // ScramblingRange 向量区间[lo, hi)置乱
 func (vec *Vector) ScramblingRange(lo, hi int) {
 	for ; lo < hi; hi-- {
-		vec.Swap(rand.Intn(hi), hi-1)
+		i := rand.Intn(hi)
+		vec.elem[hi-1], vec.elem[i] = vec.elem[i], vec.elem[hi-1]
 	}
 }
 
 // Traverse 遍历向量元素
-func (vec *Vector) Traverse(visit func(*types.Sortable)) {
+func (vec *Vector) Traverse(visitor contract.Visitor) {
 	for i := 0; i < vec.Size(); i++ {
-		visit(&vec.elem[i])
+		visitor(vec.elem[i])
 	}
-}
-
-// Find 无序向量查找：多个元素时返回秩最大者，失败时返回-1
-func (vec *Vector) Find(v types.Sortable) int {
-	return vec.FindRange(v, 0, vec.Size())
-}
-
-// FindRange 无序向量区间 [lo, hi) 查找：失败时返回-1
-func (vec *Vector) FindRange(v types.Sortable, lo, hi int) int {
-	for ; lo < hi && vec.elem[hi-1] != v; hi-- {
-	}
-	if lo == hi {
-		return -1
-	}
-	return hi - 1
 }
 
 // Deduplicate 无序向量去重
 func (vec *Vector) Deduplicate() int {
 	oldSize := vec.Size()
-	set := make(map[types.Sortable]struct{})
+	set := make(map[interface{}]struct{})
 	for i := 0; i < vec.Size(); i++ {
 		if _, ok := set[vec.elem[i]]; ok {
-			_, _ = vec.Remove(i)
+			vec.Remove(i)
 		} else {
 			set[vec.elem[i]] = struct{}{}
 		}
 	}
 	return oldSize - vec.Size()
-}
-
-// Search 有序向量整体查找, 返回不大于v的元素的最大秩
-func (vec *Vector) Search(v types.Sortable) int {
-	return vec.SearchRange(v, 0, vec.Size())
-}
-
-// SearchRange 有序向量区间 [lo, hi) 查找, 返回不大于v的元素的最大秩
-func (vec *Vector) SearchRange(v types.Sortable, lo, hi int) int {
-	return vec.binarySearchV2(v, lo, hi)
 }
 
 // Uniquify 有序向量去重
@@ -239,34 +223,6 @@ func (vec *Vector) Uniquify() int {
 	return j - vec.Size()
 }
 
-// 朴素二分查找
-func (vec *Vector) binarySearchV1(v types.Sortable, lo, hi int) int {
-	for lo < hi {
-		mid := (lo + hi) >> 1
-		if v.Less(vec.elem[mid]) {
-			hi = mid
-		} else if vec.elem[mid].Less(v) {
-			lo = mid + 1
-		} else {
-			return mid
-		}
-	}
-	return lo
-}
-
-// 优化二分查找
-func (vec *Vector) binarySearchV2(v types.Sortable, lo, hi int) int {
-	for lo < hi {
-		mid := (lo + hi) >> 1
-		if v.Less(vec.elem[mid]) {
-			hi = mid
-		} else {
-			lo = mid + 1
-		}
-	}
-	return lo - 1
-}
-
 // 扩容：空间不足时对容量执行翻倍
 func (vec *Vector) expand() {
 	if vec.Size() < vec.Capacity() {
@@ -278,7 +234,7 @@ func (vec *Vector) expand() {
 	} else {
 		cap <<= 1
 	}
-	newElem := make([]types.Sortable, vec.Size(), cap)
+	newElem := make([]interface{}, vec.Size(), cap)
 	copy(newElem, vec.elem)
 	vec.elem = newElem
 }
@@ -289,7 +245,7 @@ func (vec *Vector) shrink() {
 		return
 	}
 	cap := vec.Capacity() >> 1
-	newElem := make([]types.Sortable, vec.Size(), cap)
+	newElem := make([]interface{}, vec.Size(), cap)
 	copy(newElem, vec.elem)
 	vec.elem = newElem
 }
