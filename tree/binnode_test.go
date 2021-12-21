@@ -269,7 +269,7 @@ func TestHeight(t *testing.T) {
 	e5.updateHeight()
 	assert.Equal(t, e9.getHeight(), 0, "e9.getHeight() != 0")
 	assert.Equal(t, e5.getHeight(), 1, "e5.getHeight() != 1")
-	assert.Equal(t, e5.lc.getHeight(), 0, "e5.lc.getHeight() != -1")
+	assert.Equal(t, e5.lc.getHeight(), -1, "e5.lc.getHeight() != -1")
 
 	e5.height = 0
 	e5.updateHeightAbove()
