@@ -89,7 +89,7 @@ func (t *Bst) searchAt(x **BinNode, key interface{}) **BinNode {
 	if *x != nil {
 		t.hot = (*x).parent
 	}
-	for !equal(*x, key) {
+	for !(*x == nil || (*x).key == key) {
 		t.hot = *x
 		if keyComparator(key, (*x).key) < 0 {
 			x = &(*x).lc
@@ -118,7 +118,6 @@ func (t *Bst) removeAt(x **BinNode) *BinNode {
 		succ = *x
 	} else {
 		w = (*x).successor()
-		// todo 此处未作节点交换，只实现对数据项的交换 (外层节点引用的数据信息会出现异常)
 		(*x).key, (*x).value = w.key, w.value
 		p := w.parent
 		if p == (*x) {
@@ -142,9 +141,4 @@ func (t *Bst) String() string {
 		items = append(items, fmt.Sprintf("{%v,%v}", key, value))
 	})
 	return "{" + strings.Join(items, ", ") + "}"
-}
-
-// equal 节点判等：外部节点假想为通配符哨兵
-func equal(x *BinNode, key interface{}) bool {
-	return x == nil || x.key == key
 }
