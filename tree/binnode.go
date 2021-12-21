@@ -18,11 +18,11 @@ const (
 
 // BinNode 二叉树节点
 type BinNode struct {
+	key            interface{} // 键
+	value          interface{} // 值
 	parent, lc, rc *BinNode    // 通用数据信息
 	height         int         // 节点高度
 	color          rbColor     // 红黑树颜色：默认以红节点给出
-	key            interface{} // 键
-	value          interface{} // 值
 }
 
 // newBinNode 新建二叉树节点
@@ -113,7 +113,7 @@ func (e *BinNode) size() int {
 // getHeight 获取当前节点高度
 func (e *BinNode) getHeight() int {
 	if e == nil {
-		return 0
+		return -1
 	}
 	return e.height
 }
@@ -247,9 +247,9 @@ func (e *BinNode) leftRotate() *BinNode {
 	return rc
 }
 
-// 按照“3 + 4”结构联接3个节点及其四棵子树，返回重组之后的局部子树根节点位置（即b）.
-// 子树根节点与上层节点之间的双向联接，均须由上层调用者完成
+// connect34 “3 + 4” 重平衡算法 ：按照“3 + 4”结构联接3个节点及其四棵子树，返回重组之后的局部子树根节点位置（即b）.
 // 可用于AVL和RedBlack的局部平衡调整
+// 子树根节点与上层节点之间的双向联接，均须由上层调用者完成
 func connect34(a, b, c, t0, t1, t2, t3 *BinNode) *BinNode {
 	a.lc = t0
 	if a.lc != nil {
