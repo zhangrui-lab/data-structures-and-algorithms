@@ -1,7 +1,9 @@
 // Package tree 二叉树：仅提供树结构的基础操作支持，不包含指定元素值 v 的插入与查找等（查找树中实现）
 package tree
 
-import "data-structures-and-algorithms/types"
+import (
+	"data-structures-and-algorithms/contract"
+)
 
 // BinTree 二叉树
 type BinTree struct {
@@ -30,23 +32,23 @@ func (tree *BinTree) Root() *BinNode {
 }
 
 // InsertAsRoot 插入根节点
-func (tree *BinTree) InsertAsRoot(v types.Sortable) *BinNode {
+func (tree *BinTree) InsertAsRoot(key interface{}) *BinNode {
 	tree.size = 1
-	tree.root = &BinNode{data: v}
+	tree.root = newBinNode(key, key, nil, nil, nil)
 	return tree.root
 }
 
 // InsertAsLc e作为x的左孩子（原无）插入
-func (tree *BinTree) InsertAsLc(x *BinNode, v types.Sortable) *BinNode {
+func (tree *BinTree) InsertAsLc(x *BinNode, key interface{}) *BinNode {
 	tree.size++
-	x.lc = &BinNode{data: v, parent: x}
+	x.lc = newBinNode(key, key, x, nil, nil)
 	return x.lc
 }
 
 // InsertAsRc e作为x的右孩子（原无）插入
-func (tree *BinTree) InsertAsRc(x *BinNode, v types.Sortable) *BinNode {
+func (tree *BinTree) InsertAsRc(x *BinNode, key interface{}) *BinNode {
 	tree.size++
-	x.rc = &BinNode{data: v, parent: x}
+	x.rc = newBinNode(key, key, x, nil, nil)
 	return x.rc
 }
 
@@ -85,23 +87,23 @@ func (tree *BinTree) Secede(x *BinNode) *BinTree {
 }
 
 // TravelLevel 层次遍历
-func (tree *BinTree) TravelLevel(visit func(sortable *types.Sortable)) {
-	tree.root.travelLevel(visit)
+func (tree *BinTree) TravelLevel(visitor contract.KvVisitor) {
+	tree.root.travelLevel(visitor)
 }
 
 // TravelPre 先序遍历
-func (tree *BinTree) TravelPre(visit func(sortable *types.Sortable)) {
-	tree.root.travelPre(visit)
+func (tree *BinTree) TravelPre(visitor contract.KvVisitor) {
+	tree.root.travelPre(visitor)
 }
 
 // TravelIn 中序遍历
-func (tree *BinTree) TravelIn(visit func(sortable *types.Sortable)) {
-	tree.root.travelIn(visit)
+func (tree *BinTree) TravelIn(visitor contract.KvVisitor) {
+	tree.root.travelIn(visitor)
 }
 
 // TravelPost 后序遍历
-func (tree *BinTree) TravelPost(visit func(sortable *types.Sortable)) {
-	tree.root.travelPost(visit)
+func (tree *BinTree) TravelPost(visitor contract.KvVisitor) {
+	tree.root.travelPost(visitor)
 }
 
 // 从tree中移除节点x
