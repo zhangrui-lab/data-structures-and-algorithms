@@ -2,7 +2,6 @@ package tree
 
 import (
 	"data-structures-and-algorithms/types"
-	"data-structures-and-algorithms/vector"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -27,18 +26,18 @@ func createTree() *BinNode {
 	v5, v8, v9, v18, v19, v21, v25, v30, v40, v47, v51, v62 := types.Int(5), types.Int(8), types.Int(9), types.Int(18),
 		types.Int(19), types.Int(21), types.Int(25), types.Int(30), types.Int(40), types.Int(47), types.Int(51), types.Int(62)
 
-	e5 := newBinNode(v5)
-	e8 := newBinNode(v8)
-	e9 := newBinNode(v9)
-	e18 := newBinNode(v18)
-	e19 := newBinNode(v19)
-	e21 := newBinNode(v21)
-	e25 := newBinNode(v25)
-	e30 := newBinNode(v30)
-	e40 := newBinNode(v40)
-	e47 := newBinNode(v47)
-	e51 := newBinNode(v51)
-	e62 := newBinNode(v62)
+	e5 := newBinNode(v5, v5, nil, nil, nil)
+	e8 := newBinNode(v8, v8, nil, nil, nil)
+	e9 := newBinNode(v9, v9, nil, nil, nil)
+	e18 := newBinNode(v18, v18, nil, nil, nil)
+	e19 := newBinNode(v19, v19, nil, nil, nil)
+	e21 := newBinNode(v21, v21, nil, nil, nil)
+	e25 := newBinNode(v25, v25, nil, nil, nil)
+	e30 := newBinNode(v30, v30, nil, nil, nil)
+	e40 := newBinNode(v40, v40, nil, nil, nil)
+	e47 := newBinNode(v47, v47, nil, nil, nil)
+	e51 := newBinNode(v51, v51, nil, nil, nil)
+	e62 := newBinNode(v62, v62, nil, nil, nil)
 
 	e25.lc, e25.rc, e25.parent = e18, e47, nil
 	e18.lc, e18.rc, e18.parent = e9, e21, e25
@@ -87,29 +86,33 @@ func TestBasic(t *testing.T) {
 
 	e19 := e18.rc.lc
 	e30 := e47.lc
-	assert.Equal(t, e18.succ(), e19, "e18.succ != e19")
-	assert.Equal(t, root.succ(), e30, "root.succ != e30")
-	assert.Equal(t, e9.succ(), e18, "e9.succ != e18")
-	assert.Equal(t, e8.succ(), e9, "e8.succ != e9")
+	assert.Equal(t, e18.successor(), e19, "e18.succ != e19")
+	assert.Equal(t, root.successor(), e30, "root.succ != e30")
+	assert.Equal(t, e9.successor(), e18, "e9.succ != e18")
+	assert.Equal(t, e8.successor(), e9, "e8.succ != e9")
+
+	assert.Equal(t, e18.precursor(), e9, "e18.precursor() != e9")
+	assert.Equal(t, e8.precursor(), e5, "e8.precursor() != e5")
+	assert.Equal(t, e19.precursor(), e18, "e19.precursor() != e18")
 
 	e40 := e47.lc.rc
 	assert.NotEqual(t, e40, (*BinNode)(nil), "e40 == nil")
-	assert.Equal(t, e40.succ(), e47, "e40.succ != e47")
+	assert.Equal(t, e40.successor(), e47, "e40.succ != e47")
 }
 
 func TestInsert(t *testing.T) {
 	// 构建createTree中以18为根的子树
 	v5, v8, v9, v18, v19, v21 := types.Int(5), types.Int(8), types.Int(9), types.Int(18), types.Int(19), types.Int(21)
-	e18 := newBinNode(v18)
+	e18 := newBinNode(v18, v18, nil, nil, nil)
 	assert.Equal(t, e18.isRoot(), true, "e18.isRoot != true")
 	assert.Equal(t, e18.size(), 1, "e18.size != 1")
 
-	e9 := e18.insertAsLc(v9)
+	e9 := e18.insertLc(v9, v9)
 	assert.Equal(t, e18.lc, e9, "e18.lc != e9")
 	assert.Equal(t, e9.isLc(), true, "e9.isLc != true")
 	assert.Equal(t, e18.size(), 2, "e18.size != 2")
 
-	e21 := e18.insertAsRc(v21)
+	e21 := e18.insertRc(v21, v21)
 	assert.Equal(t, e18.rc, e21, "e18.rc != e21")
 	assert.Equal(t, e21.isRc(), true, "e21.isRc != true")
 	assert.Equal(t, e18.size(), 3, "e18.size != 3")
@@ -117,9 +120,9 @@ func TestInsert(t *testing.T) {
 	assert.Equal(t, e9.parent, e18, "e9.parent != e18")
 	assert.Equal(t, e21.parent, e18, "e21.parent != e18")
 
-	e5 := e9.insertAsLc(v5)
-	e8 := e5.insertAsRc(v8)
-	_ = e21.insertAsLc(v19)
+	e5 := e9.insertLc(v5, v5)
+	e8 := e5.insertRc(v8, v8)
+	_ = e21.insertLc(v19, v19)
 	assert.Equal(t, e18.size(), 6, "e18.size != 6")
 	assert.Equal(t, e5.size(), 2, "e5.size != 2")
 	assert.Equal(t, e5.isLeaf(), false, "e5.isLeaf != false")
@@ -127,76 +130,76 @@ func TestInsert(t *testing.T) {
 }
 
 func TestTravel(t *testing.T) {
-	level := "{25, 18, 47, 9, 21, 30, 62, 5, 19, 40, 51, 8}"
-	pre := "{25, 18, 9, 5, 8, 21, 19, 47, 30, 40, 62, 51}"
-	in := "{5, 8, 9, 18, 19, 21, 25, 30, 40, 47, 51, 62}"
-	post := "{8, 5, 9, 19, 21, 18, 40, 30, 51, 62, 47, 25}"
-	vec := vector.New(12)
+	level := "[25 18 47 9 21 30 62 5 19 40 51 8]"
+	pre := "[25 18 9 5 8 21 19 47 30 40 62 51]"
+	in := "[5 8 9 18 19 21 25 30 40 47 51 62]"
+	post := "[8 5 9 19 21 18 40 30 51 62 47 25]"
+	var str []string
 	root := createTree()
-	visit := func(data *types.Sortable) {
-		vec.Push(*data)
+	visit := func(key, value interface{}) {
+		str = append(str, fmt.Sprintf("%v", value))
 	}
 
 	// 层序
 	root.travelLevel(visit)
 	assert.Equal(t, root.size(), 12, "tree size != 12")
-	assert.Equal(t, vec.String(), level, fmt.Sprintf("root.travelLevel != %s", level))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), level, fmt.Sprintf("root.travelLevel != %s", level))
+	str = str[:0]
 
 	// 前序
 	root.dfsPre(visit)
-	assert.Equal(t, vec.String(), pre, fmt.Sprintf("root.travelPre != %s", pre))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), pre, fmt.Sprintf("root.travelPre != %s", pre))
+	str = str[:0]
 
 	root.stackPre1(visit)
-	assert.Equal(t, vec.String(), pre, fmt.Sprintf("root.travelPre != %s", pre))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), pre, fmt.Sprintf("root.travelPre != %s", pre))
+	str = str[:0]
 
 	root.stackPre2(visit)
-	assert.Equal(t, vec.String(), pre, fmt.Sprintf("root.travelPre != %s", pre))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), pre, fmt.Sprintf("root.travelPre != %s", pre))
+	str = str[:0]
 
 	root.morrisPre(visit)
-	assert.Equal(t, vec.String(), pre, fmt.Sprintf("root.travelPre != %s", pre))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), pre, fmt.Sprintf("root.travelPre != %s", pre))
+	str = str[:0]
 
 	//// 中序
 	root.dfsIn(visit)
-	assert.Equal(t, vec.String(), in, fmt.Sprintf("root.travelIn != %s", in))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), in, fmt.Sprintf("root.travelIn != %s", in))
+	str = str[:0]
 
 	root.stackIn1(visit)
-	assert.Equal(t, vec.String(), in, fmt.Sprintf("root.travelIn != %s", in))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), in, fmt.Sprintf("root.travelIn != %s", in))
+	str = str[:0]
 
 	root.stackIn2(visit)
-	assert.Equal(t, vec.String(), in, fmt.Sprintf("root.travelIn != %s", in))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), in, fmt.Sprintf("root.travelIn != %s", in))
+	str = str[:0]
 
 	root.backtrackIn(visit)
-	assert.Equal(t, vec.String(), in, fmt.Sprintf("root.travelIn != %s", in))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), in, fmt.Sprintf("root.travelIn != %s", in))
+	str = str[:0]
 
 	root.iterationIn(visit)
-	assert.Equal(t, vec.String(), in, fmt.Sprintf("root.travelIn != %s", in))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), in, fmt.Sprintf("root.travelIn != %s", in))
+	str = str[:0]
 
 	root.morrisIn(visit)
-	assert.Equal(t, vec.String(), in, fmt.Sprintf("root.travelIn != %s", in))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), in, fmt.Sprintf("root.travelIn != %s", in))
+	str = str[:0]
 
 	// 后序
 	root.dfsPost(visit)
-	assert.Equal(t, vec.String(), post, fmt.Sprintf("root.travelPost != %s", post))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), post, fmt.Sprintf("root.travelPost != %s", post))
+	str = str[:0]
 
 	root.stackPost(visit)
-	assert.Equal(t, vec.String(), post, fmt.Sprintf("root.travelPost != %s", post))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), post, fmt.Sprintf("root.travelPost != %s", post))
+	str = str[:0]
 
 	root.morrisPost(visit)
-	assert.Equal(t, vec.String(), post, fmt.Sprintf("root.travelPost != %s", post))
-	vec.Clear()
+	assert.Equal(t, fmt.Sprintf("%v", str), post, fmt.Sprintf("root.travelPost != %s", post))
+	str = str[:0]
 }
 
 func TestRotate(t *testing.T) {
@@ -268,7 +271,7 @@ func TestHeight(t *testing.T) {
 	e5.updateHeight()
 	assert.Equal(t, e9.getHeight(), 0, "e9.getHeight() != 0")
 	assert.Equal(t, e5.getHeight(), 1, "e5.getHeight() != 1")
-	assert.Equal(t, e5.lc.getHeight(), -1, "e5.lc.getHeight() != -1")
+	assert.Equal(t, e5.lc.getHeight(), 0, "e5.lc.getHeight() != -1")
 
 	e5.height = 0
 	e5.updateHeightAbove()
