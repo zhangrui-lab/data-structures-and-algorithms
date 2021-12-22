@@ -2,7 +2,10 @@ package tree
 
 import (
 	"data-structures-and-algorithms/contract"
+	"data-structures-and-algorithms/queue"
+	"fmt"
 	"sort"
+	"strings"
 )
 
 var (
@@ -254,7 +257,7 @@ func (t *Btree) Height() (height int) {
 		return -1
 	}
 	x := t.root
-	for ; len(x.children) > 0; height++ {
+	for ; x != nil && x.children[0] != nil; height++ {
 		x = x.children[0]
 	}
 	return
@@ -325,6 +328,7 @@ func (t *Btree) Remove(item interface{}) {
 	if node == nil {
 		return
 	}
+	t.size--
 	if node.children[0] != nil {
 		suc := node.children[i+1]
 		for suc.children[0] != nil {
@@ -336,4 +340,30 @@ func (t *Btree) Remove(item interface{}) {
 	node.removeItemAt(i)
 	node.removeChildAt(i + 1)
 	t.solveUnderflow(node)
+}
+
+// 层序遍历打印当前树中节点信息
+func (t *Btree) levelInfo() string {
+	var info []string
+	if t.Empty() {
+		return "[]"
+	}
+	que := queue.New()
+	que.Push(t.root)
+	for !que.Empty() {
+		var tmp string
+		size := que.Size()
+		for ; size > 0; size-- {
+			node := que.Pop().(*btreeNode)
+			tmp += fmt.Sprintf("%v ", node.items)
+			if node.children[0] != nil {
+				for _, child := range node.children {
+					que.Push(child)
+				}
+			}
+		}
+		tmp = strings.TrimRight(tmp, " ")
+		info = append(info, tmp)
+	}
+	return "[" + strings.Join(info, "\n") + "]"
 }
