@@ -7,7 +7,7 @@ import (
 
 func TestCompBinHeap(t *testing.T) {
 	nums := []interface{}{3, 45, 12, 5, 7, 2, 56, 31, 14, 67}
-	pq := FromSlice(nums)
+	pq := NewCompBinHeapFromSlice(nums)
 	assert.Equal(t, pq.Size(), 10, "pq.Size() != 10")
 	assert.Equal(t, pq.Empty(), false, "pq.Empty() != false")
 	assert.Equal(t, pq.GetMax(), 67, "pq.GetMax() != 67")

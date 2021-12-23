@@ -17,8 +17,8 @@ func NewCompBinHeap(cmps ...contract.Comparator) *CompBinHeap {
 	return &CompBinHeap{comparator: cmp}
 }
 
-// FromSlice 从给定的切片中创建堆
-func FromSlice(data []interface{}, cmps ...contract.Comparator) *CompBinHeap {
+// NewCompBinHeapFromSlice 从给定的切片中创建堆
+func NewCompBinHeapFromSlice(data []interface{}, cmps ...contract.Comparator) *CompBinHeap {
 	cmp := contract.DefaultComparator
 	if len(cmps) > 0 {
 		cmp = cmps[0]
