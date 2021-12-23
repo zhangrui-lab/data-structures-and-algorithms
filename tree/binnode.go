@@ -19,19 +19,29 @@ const (
 // BinNode 二叉树节点
 type BinNode struct {
 	key            interface{} // 键
+	color          rbColor     // 红黑树颜色：默认以红节点给出
+	height         int         // 节点高度
 	value          interface{} // 值
 	parent, lc, rc *BinNode    // 通用数据信息
-	height         int         // 节点高度
-	color          rbColor     // 红黑树颜色：默认以红节点给出
 }
 
 // newBinNode 新建二叉树节点
 func newBinNode(key, value interface{}, parent, lc, rc *BinNode, color ...rbColor) *BinNode {
-	node := &BinNode{key: key, value: value, parent: parent, lc: lc, rc: rc, height: 0}
+	node := &BinNode{key: key, value: value, parent: parent, lc: lc, rc: rc, height: 0, color: Black} // 默认黑节点。避免其他树的高度计算问题
 	if len(color) > 0 {
 		node.color = color[0]
 	}
 	return node
+}
+
+// isBlack 是否为黑节点
+func (e *BinNode) isBlack() bool {
+	return e == nil || e.color == Black
+}
+
+// isRed 是否为红节点
+func (e *BinNode) isRed() bool {
+	return !e.isBlack()
 }
 
 // isRoot 是否可为根节点。约定：e != nil
@@ -189,7 +199,11 @@ func (e *BinNode) updateHeight() {
 	if h < rh {
 		h = rh
 	}
-	e.height = h + 1
+	if e.color == Red {
+		e.height = h
+	} else {
+		e.height = h + 1
+	}
 }
 
 // updateHeightAbove 更新高度, 从x出发，覆盖历代祖先。
