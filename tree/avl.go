@@ -36,7 +36,7 @@ func (t *Avl) Insert(key, value interface{}) {
 	*x = newBinNode(key, value, t.hot, nil, nil)
 	for e := t.hot; e != nil; e = e.parent { // 寻找最低失衡节点 e
 		if !e.balanced() {
-			t.rotateAt(e)
+			t.rotateAt(e.highChild().highChild())
 			break
 		} else {
 			e.updateHeight()
@@ -57,42 +57,8 @@ func (t *Avl) Remove(key interface{}) {
 	t.removeAt(x)
 	for e := t.hot; e != nil; e = e.parent {
 		if !e.balanced() {
-			e = t.rotateAt(e)
+			e = t.rotateAt(e.highChild().highChild())
 		}
 		e.updateHeight()
 	}
-}
-
-// 节点重平衡算法
-func (t *Avl) rotateAt(g *BinNode) *BinNode {
-	var link **BinNode
-	if g.parent != nil {
-		link = g.fromParent()
-	}
-	p := g.highChild()
-	x := p.highChild()
-	if p.isLc() {
-		if x.isLc() {
-			p.parent = g.parent
-			x = connect34(x, p, g, x.lc, x.rc, p.rc, g.rc)
-		} else {
-			x.parent = g.parent
-			x = connect34(p, x, g, p.lc, x.lc, x.rc, g.rc)
-		}
-	} else {
-		if x.isRc() {
-			p.parent = g.parent
-			x = connect34(g, p, x, g.lc, p.lc, x.lc, x.rc)
-		} else {
-			x.parent = g.parent
-			x = connect34(g, x, p, g.lc, x.lc, x.rc, p.rc)
-		}
-	}
-	// 设置来自 g 父节点的指针为新的子树根节点。当 g 不存在时，g 为树根，设置 roo 为 x
-	if link != nil {
-		*link = x
-	} else {
-		t.root = x
-	}
-	return x
 }

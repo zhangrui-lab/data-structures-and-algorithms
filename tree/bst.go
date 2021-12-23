@@ -134,6 +134,39 @@ func (t *Bst) removeAt(x **BinNode) *BinNode {
 	return succ
 }
 
+// 节点重平衡算法
+func (t *Bst) rotateAt(x *BinNode) *BinNode {
+	p, g := x.parent, x.parent.parent
+	var link **BinNode
+	if g.parent != nil {
+		link = g.fromParent()
+	}
+	if p.isLc() {
+		if x.isLc() {
+			p.parent = g.parent
+			x = connect34(x, p, g, x.lc, x.rc, p.rc, g.rc)
+		} else {
+			x.parent = g.parent
+			x = connect34(p, x, g, p.lc, x.lc, x.rc, g.rc)
+		}
+	} else {
+		if x.isRc() {
+			p.parent = g.parent
+			x = connect34(g, p, x, g.lc, p.lc, x.lc, x.rc)
+		} else {
+			x.parent = g.parent
+			x = connect34(g, x, p, g.lc, x.lc, x.rc, p.rc)
+		}
+	}
+	// 设置来自 g 父节点的指针为新的子树根节点。当 g 不存在时，g 为树根，设置 roo 为 x
+	if link != nil {
+		*link = x
+	} else {
+		t.root = x
+	}
+	return x
+}
+
 // String 中序遍历下输出树元素
 func (t *Bst) String() string {
 	items := make([]string, 0, t.Size())
