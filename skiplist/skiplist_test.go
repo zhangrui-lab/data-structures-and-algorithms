@@ -18,7 +18,6 @@ func TestSkipList(t *testing.T) {
 	skl.Insert(k3, v3)
 	skl.Insert(k8, v8)
 	skl.Insert(k6, v6)
-	fmt.Println(skl.levelInfo())
 	fmt.Println()
 	//{1}
 	//{1,2,3,4}
@@ -32,7 +31,6 @@ func TestSkipList(t *testing.T) {
 	skl.Remove(k6)
 	skl.Remove(k3)
 	skl.Remove(k8)
-	fmt.Println(skl.levelInfo())
 	//{2,4}
 	//{2,4,5,7}
 
