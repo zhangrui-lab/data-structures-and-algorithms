@@ -14,6 +14,13 @@ func NewBitMap(n int) *BitMap {
 	return b
 }
 
+// FromByteSlice 从字节切片构建位图
+func FromByteSlice(data []byte) *BitMap {
+	b := NewBitMap(len(data) << 3)
+	copy(b.data, data)
+	return b
+}
+
 // Test 测试第i位是否为1
 func (b *BitMap) Test(i int) bool {
 	b.expand(i)
@@ -44,6 +51,14 @@ func (b *BitMap) Output(n int) string {
 		}
 	}
 	return buff.String()
+}
+
+// Clone 输出前n位的位模式
+func (b *BitMap) Clone(n int) *BitMap {
+	b.expand(n)
+	o := NewBitMap(n)
+	copy(o.data, b.data)
+	return o
 }
 
 // 将位图扩展到包含第i位
