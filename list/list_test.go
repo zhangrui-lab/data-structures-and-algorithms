@@ -1,7 +1,6 @@
 package list
 
 import (
-	"data-structures-and-algorithms/types"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -41,8 +40,8 @@ func TestEmpty(t *testing.T) {
 	l := New()
 	checkEmpty(t, l)
 
-	l.PushBack(types.Int(10))
-	l.PushBack(types.Int(20))
+	l.PushBack(10)
+	l.PushBack(20)
 	checkSize(t, l, 2)
 
 	l.Clear()
@@ -50,7 +49,7 @@ func TestEmpty(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	v1, v2, v3, v4 := types.Int(1), types.Int(2), types.Int(3), types.Int(4)
+	v1, v2, v3, v4 := 1, 2, 3, 4
 	l := New()
 	l.PushFront(v1)
 	l.PushFront(v2)
@@ -94,7 +93,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestInsertAndRemove(t *testing.T) {
-	v1, v2, v3, v4, v5 := types.Int(1), types.Int(2), types.Int(3), types.Int(4), types.Int(5)
+	v1, v2, v3, v4, v5 := 1, 2, 3, 4, 5
 	l := New()
 
 	// -- insert
@@ -140,7 +139,7 @@ func TestInsertAndRemove(t *testing.T) {
 }
 
 func TestMove(t *testing.T) {
-	v1, v2, v3, v4, v5 := types.Int(1), types.Int(2), types.Int(3), types.Int(4), types.Int(5)
+	v1, v2, v3, v4, v5 := 1, 2, 3, 4, 5
 	l := New()
 	e1 := l.PushFront(v1)
 	e2 := l.PushFront(v2)
@@ -150,7 +149,6 @@ func TestMove(t *testing.T) {
 
 	checkSize(t, l, 5)
 	assert.Equal(t, l.String(), "{5, 4, 3, 2, 1}", "l.String() != {5, 4, 3, 2, 1}")
-	assert.Equal(t, l.disordered(), 4, "disordered {5, 4, 3, 2, 1} != 4")
 
 	l.MoveAfter(e2, e1) // {5, 4, 3, 1, 2}
 	checkIsPrev(t, e2, l.trailer)
@@ -168,11 +166,10 @@ func TestMove(t *testing.T) {
 	checkIsPrev(t, e5, e1)
 
 	assert.Equal(t, l.String(), "{4, 5, 1, 2, 3}", "l.String() != {4, 5, 1, 2, 3}")
-	assert.Equal(t, l.disordered(), 1, "disordered {4, 5, 1, 2, 3} != 1")
 }
 
 func TestMerge(t *testing.T) {
-	v1, v2, v3, v4, v5 := types.Int(1), types.Int(2), types.Int(3), types.Int(4), types.Int(5)
+	v1, v2, v3, v4, v5 := 1, 2, 3, 4, 5
 	l1 := New()
 	l1.PushFront(v1)
 	l1.PushFront(v2) // {2, 1}
@@ -193,7 +190,7 @@ func TestMerge(t *testing.T) {
 }
 
 func TestReverse(t *testing.T) {
-	v1, v2, v3, v4, v5 := types.Int(1), types.Int(2), types.Int(3), types.Int(4), types.Int(5)
+	v1, v2, v3, v4, v5 := 1, 2, 3, 4, 5
 	l1 := New()
 	l1.PushFront(v1)
 	l1.PushFront(v2) // {2, 1}
@@ -206,29 +203,4 @@ func TestReverse(t *testing.T) {
 	l2.PushBack(v5)
 	l2.PushBack(v4) // {3, 5, 4}
 	assert.Equal(t, l2.String(), "{3, 5, 4}", "l2.String() != {3, 5, 4}")
-}
-
-func TestList_Swap_Less(t *testing.T) {
-	v1, v2, v3, v4, v5 := types.Int(1), types.Int(2), types.Int(3), types.Int(4), types.Int(5)
-	l := New()
-	l.PushFront(v1)
-	l.PushFront(v2)
-	l.PushFront(v3)
-	l.PushFront(v4)
-	l.PushFront(v5) // {5, 4, 3, 2, 1}
-	assert.Equal(t, l.String(), "{5, 4, 3, 2, 1}", "l.String() != {5, 4, 3, 2, 1}")
-
-	l.Swap(1, 2) // {5, 3, 4, 2, 1}
-	assert.Equal(t, l.String(), "{5, 3, 4, 2, 1}", "l.String() != {5, 3, 4, 2, 1}")
-
-	l.Swap(0, 4) // {1, 3, 4, 2, 5}
-	assert.Equal(t, l.String(), "{1, 3, 4, 2, 5}", "l.String() != {1, 3, 4, 2, 5}")
-
-	l.Swap(2, 3) // {1, 3, 2, 4, 5}
-	assert.Equal(t, l.String(), "{1, 3, 2, 4, 5}", "l.String() != {1, 3, 2, 4, 5}")
-
-	// {1, 3, 2, 4, 5}
-	assert.Equal(t, l.Less(1, 2), false, "(3 < 2) != false")
-	assert.Equal(t, l.Less(1, 3), true, "(3 < 4) != true")
-	assert.Equal(t, l.Less(2, 3), true, "(2 < 4) != true")
 }

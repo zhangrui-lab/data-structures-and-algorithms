@@ -2,20 +2,19 @@
 package list
 
 import (
-	"data-structures-and-algorithms/types"
 	"fmt"
 	"strings"
 )
 
 // Node 列表节点
 type Node struct {
-	Data       types.Sortable
+	Data       interface{}
 	prev, next *Node
 	list       *List
 }
 
 // 新建节点
-func newNode(v types.Sortable, list *List, prev, next *Node) *Node {
+func newNode(v interface{}, list *List, prev, next *Node) *Node {
 	return &Node{
 		Data: v,
 		prev: prev,
@@ -25,7 +24,7 @@ func newNode(v types.Sortable, list *List, prev, next *Node) *Node {
 }
 
 // 将v插入为当前节点直接后继
-func (node *Node) insertAsNext(v types.Sortable) *Node {
+func (node *Node) insertAsNext(v interface{}) *Node {
 	x := newNode(v, node.list, node, node.next)
 	if node.next != nil {
 		node.next.prev = x
@@ -75,28 +74,6 @@ func (l *List) Init() *List {
 	return l
 }
 
-// Less 返回 List.At[i] 是否小于 List.At[j]：i 与 j需要介于 [ 0, l.Size() ) 之间
-func (l *List) Less(i, j int) bool {
-	return l.At(i).Data.Less(l.At(j).Data) // 可优化至一次 for
-}
-
-// Swap 交换 List.At[i] 与 List.At[j]：i 与 j需要介于 [ 0, l.Size() ) 之间
-func (l *List) Swap(i, j int) {
-	if i == j {
-		return
-	}
-	ie, je := l.At(i), l.At(j)
-	if i < j {
-		prev := ie.prev
-		l.move(ie, je)
-		l.move(je, prev)
-	} else {
-		prev := je.prev
-		l.move(je, ie)
-		l.move(ie, prev)
-	}
-}
-
 // Size 列表元素个数
 func (l *List) Size() int {
 	return l.size
@@ -135,19 +112,8 @@ func (l *List) At(p int) *Node {
 	return n
 }
 
-//Disordered 返回列表的逆序对数
-func (l *List) disordered() int {
-	n, e := 0, l.Front()
-	for i := 0; i < l.size-1; i, e = i+1, e.next {
-		if e.next.Data.Less(e.Data) {
-			n++
-		}
-	}
-	return n
-}
-
 // Find 无序列表查找：查找失败返回nil， 多个匹配元素时返回靠后者
-func (l *List) Find(v types.Sortable) *Node {
+func (l *List) Find(v interface{}) *Node {
 	for e := l.Back(); e != l.header; e = e.prev {
 		if e.Data != v {
 			return e
@@ -169,7 +135,7 @@ func (l *List) String() string {
 }
 
 // Insert 在节点 at 之后插入元素 d (同InsertAfter)； at 不为nil
-func (l *List) Insert(v types.Sortable, at *Node) *Node {
+func (l *List) Insert(v interface{}, at *Node) *Node {
 	if at == nil || at.list != l && at == l.trailer {
 		return nil
 	}
@@ -178,7 +144,7 @@ func (l *List) Insert(v types.Sortable, at *Node) *Node {
 }
 
 // Remove 删除节点e；e为l合法节点
-func (l *List) Remove(e *Node) types.Sortable {
+func (l *List) Remove(e *Node) interface{} {
 	if !e.valid(l) {
 		return nil
 	}
@@ -192,12 +158,12 @@ func (l *List) Remove(e *Node) types.Sortable {
 }
 
 // PushFront 将d作为首元素插入
-func (l *List) PushFront(v types.Sortable) *Node {
+func (l *List) PushFront(v interface{}) *Node {
 	return l.Insert(v, l.header)
 }
 
 // PopFront 移除首节点
-func (l *List) PopFront() types.Sortable {
+func (l *List) PopFront() interface{} {
 	if l.Empty() {
 		return nil
 	}
@@ -205,12 +171,12 @@ func (l *List) PopFront() types.Sortable {
 }
 
 // PushBack 作为尾节点插入
-func (l *List) PushBack(v types.Sortable) *Node {
+func (l *List) PushBack(v interface{}) *Node {
 	return l.Insert(v, l.trailer.prev)
 }
 
 // PopBack 移除尾节点
-func (l *List) PopBack() types.Sortable {
+func (l *List) PopBack() interface{} {
 	if l.Empty() {
 		return nil
 	}
@@ -225,7 +191,7 @@ func (l *List) Clear() int {
 }
 
 // InsertBefore 在合法节点 mark 之前 插入数据 v
-func (l *List) InsertBefore(v types.Sortable, mark *Node) *Node {
+func (l *List) InsertBefore(v interface{}, mark *Node) *Node {
 	if !mark.valid(l) {
 		return nil
 	}
@@ -233,7 +199,7 @@ func (l *List) InsertBefore(v types.Sortable, mark *Node) *Node {
 }
 
 // InsertAfter 在合法节点 mark 之后 插入数据 v
-func (l *List) InsertAfter(v types.Sortable, mark *Node) *Node {
+func (l *List) InsertAfter(v interface{}, mark *Node) *Node {
 	return l.Insert(v, mark)
 }
 
