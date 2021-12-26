@@ -1,7 +1,6 @@
 package forward_list
 
 import (
-	"data-structures-and-algorithms/types"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -11,7 +10,7 @@ func TestForwardList(t *testing.T) {
 	assert.Equal(t, fl.Size(), 0, "empty forwardList size() != 0")
 	assert.Equal(t, fl.Empty(), true, "empty forwardList Empty() != true")
 
-	v1, v2, v3 := types.Int(1), types.Int(2), types.Int(3)
+	v1, v2, v3 := 1, 2, 3
 	e1 := fl.PushFront(v1) // 1
 	assert.Equal(t, e1.Data, v1, "e1.Data != v1")
 	assert.Equal(t, fl.Size(), 1, "size() != 1")

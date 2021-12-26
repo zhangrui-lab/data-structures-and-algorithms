@@ -1,19 +1,18 @@
 package forward_list
 
 import (
-	"data-structures-and-algorithms/types"
 	"fmt"
 	"strings"
 )
 
 // Node 单向列表节点
 type Node struct {
-	Data types.Sortable
+	Data interface{}
 	next *Node
 }
 
 // insert 插入v为当前节点后继
-func (e *Node) insert(v types.Sortable) *Node {
+func (e *Node) insert(v interface{}) *Node {
 	p := &Node{Data: v, next: e.next}
 	e.next = p
 	return p
@@ -49,7 +48,7 @@ func (l *ForwardList) Front() *Node {
 }
 
 // RemoveAfter at的直接后继存在时，将其移除并返回其值
-func (l *ForwardList) RemoveAfter(at *Node) types.Sortable {
+func (l *ForwardList) RemoveAfter(at *Node) interface{} {
 	e := at.next
 	if e == nil {
 		return nil
@@ -60,13 +59,13 @@ func (l *ForwardList) RemoveAfter(at *Node) types.Sortable {
 }
 
 // PushFront 将v作为首元素值插入
-func (l *ForwardList) PushFront(v types.Sortable) *Node {
+func (l *ForwardList) PushFront(v interface{}) *Node {
 	l.size++
 	return l.root.insert(v)
 }
 
 // PopFront 非空时移除首元素并返回其值
-func (l *ForwardList) PopFront() types.Sortable {
+func (l *ForwardList) PopFront() interface{} {
 	return l.RemoveAfter(l.root)
 }
 
@@ -91,7 +90,7 @@ func (l *ForwardList) Merge(other *ForwardList) int {
 }
 
 // Remove 将值为v的元素从l中移除
-func (l *ForwardList) Remove(v types.Sortable) int {
+func (l *ForwardList) Remove(v interface{}) int {
 	size := l.size
 	for e := l.root; e.next != nil; {
 		if e.next.Data != v {
