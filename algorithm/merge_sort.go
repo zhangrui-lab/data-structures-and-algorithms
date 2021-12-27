@@ -22,10 +22,7 @@ func merge(data []interface{}, lo, mid, hi int, cmp contract.Comparator) {
 	for lo < mid && mid < hi {
 		if cmp(data[lo], data[mid]) > 0 {
 			e := data[mid]
-			if mid < hi-1 {
-				copy(data[mid:hi], data[mid+1:hi])
-			}
-			copy(data[lo+1:hi], data[lo:hi])
+			copy(data[lo+1:mid+1], data[lo:mid])
 			data[lo] = e
 			mid++
 		}
