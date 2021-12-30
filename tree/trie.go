@@ -50,8 +50,8 @@ func (t *Trie) remove(node *innerNode, key string, depth int) (interface{}, bool
 		node.leaf = nil
 		return value, deleted
 	}
-	value, removed := t.remove(node.getChild(key[depth]), key, depth+1)
-	if removed {
+	value, deleted := t.remove(node.getChild(key[depth]), key, depth+1)
+	if deleted {
 		node.delChild(key[depth])
 	}
 	return value, node.children.Len() <= 0
