@@ -18,6 +18,8 @@
 * AVL树
 * Splay树
 * B-树
+* Trie树
+* Radix树
 * ~~B+树~~
 * 红黑树
 
