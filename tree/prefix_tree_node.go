@@ -11,6 +11,7 @@ var _ sort.Interface = children(nil)
 // 树节点
 type innerNode struct {
 	char     byte
+	prefix   string // 供 Radix 树使用
 	children children
 	leaf     *leafNode
 }
@@ -104,4 +105,28 @@ func (inner *innerNode) dfs(call WalkFn) bool {
 		}
 	}
 	return false
+}
+
+// 返回最长公共前缀
+func (inner *innerNode) longestCommonPrefix(key string) int {
+	if inner == nil {
+		return 0
+	}
+	common, maxLen := 0, len(inner.prefix)
+	if maxLen > len(key) {
+		maxLen = len(key)
+	}
+	for ; common < maxLen && inner.prefix[common] == key[common]; common++ {
+	}
+	return common
+}
+
+// 合并子节点
+func (inner *innerNode) merge() {
+	if inner.isLeaf() || inner.children.Len() != 1 {
+		return
+	}
+	inner.prefix += inner.children[0].prefix
+	inner.leaf = inner.children[0].leaf
+	inner.children = inner.children[0].children
 }

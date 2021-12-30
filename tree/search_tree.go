@@ -18,8 +18,8 @@ type PrefixTree interface {
 	Insert(key string, value interface{}) interface{} // 插入或者替换：返回替换的旧值，插入时返回 nil
 	Remove(key string) interface{}                    // 删除节点
 	Walk(callable WalkFn)                             // 对所有节点进行处理
-	All() []string                                    // 插入或者替换：返回替换的旧值，插入时返回 nil
-	ToMap() map[string]interface{}                    // 插入或者替换：返回替换的旧值，插入时返回 nil
+	All() []string                                    // 返回所有key
+	ToMap() map[string]interface{}                    // 转化为  map<key:value> 结构
 	Prefix(prefix string) []string                    // 公共前缀 prefix 的节点列表
 	WalkPrefix(prefix string, callable WalkFn)        // 对指定前缀节点进行处理
 }
